@@ -27,13 +27,13 @@
     URL Penpot (En espera)
 
 ### URL DE PRODUCCIÓ : 
---/
 
 
 ### ESTAT :
   1r dia del projecte, hem definit els rols i tasques inicials de cada integrant
   2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
   La base de dades ja està creada i finalitzada (MySql)
+
 
 ### URL Diagrama entitat relació: https://app.diagrams.net/#G1TKbrb3gLTKSwPoLYVMBvoF4VPat1ewLT#%7B%22pageId%22%3A%22KMXDIqi0qLqnxIe9qrFn%22%7D
 
