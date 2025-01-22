@@ -35,7 +35,8 @@
   La base de dades ja està creada i finalitzada (MySql)
 
 
-### URL Diagrama entitat relació: https://app.diagrams.net/#G1TKbrb3gLTKSwPoLYVMBvoF4VPat1ewLT#%7B%22pageId%22%3A%22KMXDIqi0qLqnxIe9qrFn%22%7D
+### Diagrama entitat relació: 
+https://app.diagrams.net/#G1TKbrb3gLTKSwPoLYVMBvoF4VPat1ewLT#%7B%22pageId%22%3A%22KMXDIqi0qLqnxIe9qrFn%22%7D
 
 
 
