@@ -12,3 +12,10 @@ services:
     command: sh -c ".env.DEV .env && npm install && node index.js"
   
   mindcode-front:
+    image: node:23-alpine3.20
+    command: sh -c "cp .env.DEV .env && npm install && npm run dev"
+    volumes:
+      - ./front:/usr/src/app
+    working_dir: /usr/src/app
+    ports: 
+      - 5173:3000
