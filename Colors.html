@@ -1,10 +1,10 @@
+<!-- Author: Bernat Mir -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demostración de Colores</title>
-    
+    <title>Demostración de Colores y Gradientes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #F8F8F8; 
+            background-color: #F8F8F8; /* Blanco Roto */
         }
         .contenedor {
             width: 80%;
@@ -26,49 +26,44 @@
             color: white;
             font-size: 18px;
             border-radius: 8px;
+            text-align: center;
         }
+        .blanco-puro { background-color: #FFFFFF; color: #000; border: 1px solid #E0E0E0; }
+        .blanco-roto { background-color: #F8F8F8; color: #000; border: 1px solid #E0E0E0; }
+        .gris-claro { background-color: #E0E0E0; color: #000; border : 1px solid #E0E0E0}
+        .gris-medio { background-color: #A9A9A9; color: #000; border : 1px solid #E0E0E0}
+        .gris-oscuro { background-color: #4F4F4F; color: #000; border : 1px solid #E0E0E0}
+        .negro-puro { background-color: #000000; color: #fff; border : 1px solid #E0E0E0}
+        .azul-neutro { background-color: #154c79; color: #000; border : 1px solid #E0E0E0}
 
-        .title{
-            font-size: 50px;
-            margin-top: center;
+        /* Ejemplos de gradientes */
+       
+        .gradient-gris-azul {
+            background: linear-gradient(to right, #E0E0E0, #154c79);
         }
-
-        .blanco-puro {
-            background-color: #FFFFFF;
+       
+        .gradient-blanco-gris {
+            background: linear-gradient(to right, #E0E0E0, #aaa5a5b4);
+        }
+       
+        .gradient-negro-blanco {
+            background: linear-gradient(to right, #FFFFFF, #000000);
             color: #000;
-            border: 1px solid #E0E0E0;
-        }
-        .blanco-roto {
-            background-color: #FAFAFA;
-            color: #000;
-            border: 1px solid #E0E0E0;
-        }
-        .gris-claro {
-            background-color: #E0E0E0;
-        }
-        .gris-medio {
-            background-color: #A9A9A9;
-        }
-        .gris-oscuro {
-            background-color: #4F4F4F;
-        }
-        .negro-puro {
-            background-color: #252525;
-        }
-        .azul-neutro {
-            background-color: #154c79;
         }
     </style>
 </head>
 <body>
-    <div class="title"> Color guide for Mindcode! </div>
+
     <div class="contenedor blanco-puro">Blanco Puro (#FFFFFF)</div>
     <div class="contenedor blanco-roto">Blanco Roto (#F8F8F8)</div>
     <div class="contenedor gris-claro">Gris Claro (#E0E0E0)</div>
     <div class="contenedor gris-medio">Gris Medio (#A9A9A9)</div>
     <div class="contenedor gris-oscuro">Gris Oscuro (#4F4F4F)</div>
-    <div class="contenedor negro-puro">Negro Puro (#252525)</div>
-    <div class="contenedor azul-neutro">Azul Neutro (#154C79)</div>
-
+    <div class="contenedor negro-puro">Negro Puro (#000000)</div>
+    <div class="contenedor azul-neutro">Azul Neutro (#154c79)</div>
+    <div class="contenedor gradient-gris-azul">Gradiente Gris Medio a Azul Neutro</div>
+    <div class="contenedor gradient-blanco-gris">Gradiente Blanco a Gris Claro</div>
+    <div class="contenedor gradient-negro-blanco">Gradiente Negro a Blanco</div>
+    
 </body>
 </html>
