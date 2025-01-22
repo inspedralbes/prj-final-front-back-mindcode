@@ -1,0 +1,37 @@
+CREATE TABLE IF NOT EXISTS USERS (
+    iduser INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    gmail VARCHAR(255),
+    teacher BOOLEAN,
+    language TEXT
+);
+
+CREATE TABLE IF NOT EXISTS CLASS (
+    idclass INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    teacher_id INT,
+    language TEXT,
+    FOREIGN KEY (teacher_id) REFERENCES USERS(iduser)
+);
+
+CREATE TABLE IF NOT EXISTS LANGUAGES (
+	idlanguage INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(255),
+	system_prompt LONGTEXT
+);
+
+CREATE TABLE IF NOT EXISTS SUBLANGUAGES (
+	id INT AUTO_INCREMENT,
+	idlanguage INT,
+	name VARCHAR(255),
+	system_prompt LONGTEXT,
+	PRIMARY KEY (id,idlanguage),
+	FOREIGN KEY (idlanguage) REFERENCES LANGUAGES(idlanguage)
+);
+
+
+CREATE TABLE IF NOT EXISTS RESTRICTION (
+	idrestriction INT AUTO_INCREMENT PRIMARY KEY,
+	nivell ENUM('BEGINNER', 'INTERMEDIATE', 'ADVANCED'), 
+	content TEXT
+);
