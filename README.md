@@ -18,7 +18,7 @@
 
 ### GESTOR DE TASQUES : 
   - El gestor de tasques utilitzat serà Taiga, amb metodologia SCRUM, separat per sprints.
-    URL (En espera)
+    URL: https://tree.taiga.io/project/arnfergil-mindcode/timeline
 
 
 
