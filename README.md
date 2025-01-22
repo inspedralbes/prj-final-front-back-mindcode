@@ -21,7 +21,7 @@
     URL: https://tree.taiga.io/project/arnfergil-mindcode/timeline
 
 
-
+c
 ### Prototip gràfic:
   - Els prototips gràfics com els Mockups i Wireframes els realitzarem amb Penpot.
     URL Penpot: https://design.penpot.app/#/workspace/f5fe9278-89db-81e9-8004-fb0eecd41217/96c4bd8e-df43-800f-8005-9d499dc21428?page-id=96c4bd8e-df43-800f-8005-9d499dc21429
@@ -30,9 +30,9 @@
   - En espera
 
 ### Estat :
-    - 1r dia del projecte, hem definit els rols i tasques inicials de cada integrant
-    - 2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
-      La base de dades ja està creada i finalitzada (MySql)
+  1r dia del projecte, hem definit els rols i tasques inicials de cada integrant
+  2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
+  La base de dades ja està creada i finalitzada (MySql)
   3r
 
 
