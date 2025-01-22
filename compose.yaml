@@ -1,0 +1,14 @@
+services:
+  mindcode-back:
+    # image: "node:23-alpine3.20"
+    build: 
+      dockerfile: ./back/develop.Dockerfile
+      context: .
+    working_dir: /home/node/app
+    volumes:
+      - ./back:/home/node/app
+    ports:
+      - "3000:3000"
+    command: sh -c ".env.DEV .env && npm install && node index.js"
+  
+  mindcode-front:
