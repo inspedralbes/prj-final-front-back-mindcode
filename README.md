@@ -30,9 +30,10 @@
   - En espera
 
 ### Estat :
-  1r dia del projecte, hem definit els rols i tasques inicials de cada integrant
-  2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
-  La base de dades ja està creada i finalitzada (MySql)
+    - 1r dia del projecte, hem definit els rols i tasques inicials de cada integrant
+    - 2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
+      La base de dades ja està creada i finalitzada (MySql)
+  3r
 
 
 ### URL Diagrama entitat relació: 
