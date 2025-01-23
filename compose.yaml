@@ -53,14 +53,15 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'mindcode'
-      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: mindcode
+      MYSQL_ROOT_PASSWORD: root
     ports:
       - '3306:3306'
     volumes:
-      - mysqldb:/var/lib/mysql
-      - .db/create.sql:/docker-entrypoin-initdb.d/create.sql
-      - .db/inserts.sql:/docker-entrypoin-initdb.d/inserts.sql
+      - mysqldb:/var/lib/mysql:rw
+      - ./db/create.sql:/docker-entrypoint-initdb.d/create.sql
+      - ./db/inserts.sql:/docker-entrypoint-initdb.d/inserts.sql
+      
   mindcode-adminer:
     image: adminer
     restart: always
