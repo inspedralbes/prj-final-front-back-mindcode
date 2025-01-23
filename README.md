@@ -5,7 +5,7 @@
   - Kaetheen Guanoluisa
 
 ### NOM DEL PROJECTE :
-  MindCode.
+  ## MINDCODE.
   Referència a l'us de la ment i la intel·lecte per a desenvolupar coneixements de programació i codificació
   
 ### DESCRIPCIÓ DEL PROJECTE :
