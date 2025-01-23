@@ -1,0 +1,26 @@
+    {
+        "endpoint": "/api/sublanguages",
+        "method": "POST",
+        "description": "Create a new sublanguages",
+        "request": {
+            "contentType": "application/json",
+            "body": {
+                "name": "string"
+            }
+        },
+        "response": {
+            "201": {
+                "description": "Sublanguages created successfully",
+                "body": {
+                    "id":"int",
+                    "idlanguage": "int",
+                    "name": "string",
+                    "system_prompt": "string"
+                }
+            },
+            "400": {
+                "description": "Invalid input"
+            }
+        }
+    }
+    

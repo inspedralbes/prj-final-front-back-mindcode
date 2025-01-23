@@ -1,0 +1,23 @@
+{
+    "endpoint": "/api/user",
+    "method": "GET",
+    "description": "Retrieve a list of all users",
+    "response": {
+        "200": {
+            "status": "success",
+            "description": "Users retrieved successfully",
+            "body": [
+                {
+                    "id": "int",
+                    "name": "string",
+                    "gmail": "string",
+                    "teacher": "boolean",
+                    "language": "string",
+                    "googleId": "string",
+                    "class": "int",
+                    "data": "string (YYYY-MM-DD)"
+                }
+            ]
+        }
+    }
+}

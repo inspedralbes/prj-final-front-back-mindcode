@@ -1,17 +1,19 @@
 CREATE TABLE IF NOT EXISTS USERS (
-    iduser INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     gmail VARCHAR(255),
     teacher BOOLEAN,
-    language TEXT
+    language TEXT,
+	googleId TEXT,
+	class INT,
+	FOREIGN KEY (class) REFERENCES CLASS (idclass) 
 );
 
 CREATE TABLE IF NOT EXISTS CLASS (
     idclass INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    teacher_id INT,
-    language TEXT,
-    FOREIGN KEY (teacher_id) REFERENCES USERS(iduser)
+    teacher_id TEXT,
+    language TEXT
 );
 
 CREATE TABLE IF NOT EXISTS LANGUAGES (

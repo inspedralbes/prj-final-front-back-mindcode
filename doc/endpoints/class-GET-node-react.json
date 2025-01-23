@@ -8,9 +8,9 @@
             "description": "Classes retrieved successfully",
             "body": [
                 {
-                    "idclass": "integer",
+                    "idclass": "string",
                     "name": "string",
-                    "teacher_id": "integer",
+                    "teacher_id": "string",
                     "language": "string"
                 }
             ]
