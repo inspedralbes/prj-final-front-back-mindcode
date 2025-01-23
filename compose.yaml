@@ -9,7 +9,7 @@ services:
       - ./back:/home/node/app
     ports:
       - "3000:3000"
-    command: sh -c ".env.DEV .env && npm install && node index.js"
+    command: sh -c "ls && .env.DEV .env && npm install && node index.js"
   
   mindcode-front:
     image: node:23-alpine3.20
