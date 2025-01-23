@@ -8,5 +8,14 @@
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.6",
+    "mysql2": "^3.11.5",
+    "mongoose": "^8.8.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^11.0.3"
+  }
 }
