@@ -13,8 +13,7 @@
             "description": "Language created successfully",
             "body": {
                 "idlanguage": "int",
-                "name": "string",
-                "system_prompt": "string"
+                "name": "string"
             }
         },
         "400": {

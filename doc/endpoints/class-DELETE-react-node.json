@@ -5,7 +5,7 @@
     "request": {
         "contentType": "application/json",
         "body": {
-            "idclass": "string"
+            "class_id": "string"
         }
     },
     "response": {

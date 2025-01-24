@@ -5,7 +5,7 @@
     "request": {
         "contentType": "application/json",
         "body": {
-            "iduser": "string",
+            "teacher_id": "string",
             "name": "string"
         }
     },
@@ -13,10 +13,11 @@
         "201": {
             "description": "Class created successfully",
             "body": {
-                "idclass": "string",
+                "class_id": "string",
                 "name": "string",
                 "teacher_id": "string",
-                "language": "string"
+                "language": "string",
+                "class_code": "string"
             }
         },
         "400": {

@@ -4,7 +4,7 @@
     "description": "Retrieve a list of a class stats",
     "request":{
         "body": {
-            "idclass": "int"
+            "class_id": "int"
         }
     },
     "response": {
@@ -13,10 +13,9 @@
             "description": "Class stats retrieved successfully",
             "body": [
                 {
-                    "id": "int",
                     "language_info": "string",
                     "quiz_answered": "string",
-                    "data": "string (YYYY-MM-DD)"
+                    "data": "date"
                 }
             ]
         }

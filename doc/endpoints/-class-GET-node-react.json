@@ -5,7 +5,7 @@
     "request":{
         "body": [
             {
-                "idclass": "int"
+                "class_id": "int"
             }
         ]
     },
