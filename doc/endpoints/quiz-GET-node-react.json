@@ -1,0 +1,23 @@
+{
+    "endpoint": "api/quiz/{_id}",
+    "method": "GET",
+    "description": "Retrieve a list of all quiz",
+    "response": {
+        "200": {
+            "status": "success",
+            "description": "Quiz retrieved successfully",
+            "body": [
+                {
+                    "id": "int",
+                    "questions": "string",
+                    "answers": "string",
+                    "results": "string",
+                    "language_id": "string",
+                    "sublanguage_id": "string",
+                    "data": "string (YYYY-MM-DD)",
+                    "answered": "string"
+                }
+            ]
+        }
+    }
+}
