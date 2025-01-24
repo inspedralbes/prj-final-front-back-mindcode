@@ -69,7 +69,7 @@ app.post('/api/class', async (req, res) => {
     try {
         const connection = await createConnection();
         const [result] = await connection.execute(
-            'INSERT INTO classes (name, teacher_id) VALUES (?, ?)',
+            'INSERT INTO CLASS (name, teacher_id) VALUES (?, ?)',
             [name, JSON.stringify([teacher_id])]
         );
         await connection.end();
@@ -78,6 +78,49 @@ app.post('/api/class', async (req, res) => {
     } catch (error) {
         console.error('Error creating class:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/join-student', async (req, res) => {
+    const { classCode, studentId } = req.body;
+
+    if (!classCode || !studentId) {
+        return res.status(400).json({ error: 'Class code and student ID are required' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT id FROM CLASS WHERE code = ?',
+            [classCode]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'Class does not exist' });
+        } else {
+            const classId = rows[0].id;
+            try {
+                const connection = await createConnection();
+                const [result] = await connection.execute(
+                    'UPDATE USER SET class_id = ? WHERE googleId = ?',
+                    [classId, studentId]
+                );
+                await connection.end();
+
+                if (result.affectedRows === 0) {
+                    return res.status(400).json({ error: 'Student could not be added to class' });
+                } else {
+                    res.json({ message: 'Student added to class successfully' });
+                }
+            } catch (error) {
+                console.error('Error adding student to class:', error);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+        }
+    } catch (error) {
+        console.error('Error verifying class code:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 });
 
