@@ -1,7 +1,12 @@
 {
-    "endpoint": "api/classStats/{_id}",
+    "endpoint": "api/classStats",
     "method": "GET",
-    "description": "Retrieve a list of all class stats",
+    "description": "Retrieve a list of a class stats",
+    "request":{
+        "body": {
+            "idclass": "int"
+        }
+    },
     "response": {
         "200": {
             "status": "success",

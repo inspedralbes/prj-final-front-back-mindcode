@@ -1,7 +1,14 @@
 {
-    "endpoint": "api/chat/{_id}",
+    "endpoint": "api/chat",
     "method": "GET",
-    "description": "Retrieve a list of all chat",
+    "description": "Retrieve a list of chat",
+    "request": {
+        "body": {
+            "id": "int",
+            "language_id": "int",
+            "sublanguage_id": "int"
+        }
+    },
     "response": {
         "200": {
             "status": "success",
@@ -11,9 +18,7 @@
                     "id": "int",
                     "language_id": "string",
                     "sublanguage_id": "string",
-                    "message": "string",
-                    "role": "string",
-                    "data": "string (YYYY-MM-DD)"
+                    "message": "string"
                 }
             ]
         }

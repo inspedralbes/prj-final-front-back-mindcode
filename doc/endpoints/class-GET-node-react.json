@@ -2,15 +2,20 @@
     "endpoint": "/api/class",
     "method": "GET",
     "description": "Retrieve a list of all classes",
+    "request":{
+        "body": [
+            {
+                "idclass": "int"
+            }
+        ]
+    },
     "response": {
         "200": {
             "status": "success",
             "description": "Classes retrieved successfully",
             "body": [
                 {
-                    "idclass": "string",
                     "name": "string",
-                    "teacher_id": "string",
                     "language": "string"
                 }
             ]
