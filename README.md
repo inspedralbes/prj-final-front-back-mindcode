@@ -3,6 +3,7 @@
   - Inbisat Naveed
   - Bernat Mir
   - Kaetheen Guanoluisa
+  - Arnau Fernández
 
 ### Nom del projecte :
   MINDCODE.
@@ -15,13 +16,10 @@
   haurà una interfaç similar pels professors. On podràn controlar les assignatures i classes visibles pels alumnes, tenint la capacitat
   de modificar la visibilitat en funció de les necessitats (prova de validació, exercicis, temàtiques)
 
-
 ### Gestor de tasques : 
   - El gestor de tasques utilitzat serà Taiga, amb metodologia SCRUM, separat per sprints.
     URL: https://tree.taiga.io/project/arnfergil-mindcode/timeline
 
-
-c
 ### Prototip gràfic:
   - Els prototips gràfics com els Mockups i Wireframes els realitzarem amb Penpot.
     URL Penpot: https://design.penpot.app/#/workspace/f5fe9278-89db-81e9-8004-fb0eecd41217/96c4bd8e-df43-800f-8005-9d499dc21428?page-id=96c4bd8e-df43-800f-8005-9d499dc21429
