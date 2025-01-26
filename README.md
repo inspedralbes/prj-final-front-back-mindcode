@@ -3,6 +3,7 @@
   - Inbisat Naveed
   - Bernat Mir
   - Kaetheen Guanoluisa
+  - Arnau Fernández
 
 ### NOM DEL PROJECTE :
   ## MINDCODE.
@@ -20,8 +21,6 @@
   - El gestor de tasques utilitzat serà Taiga, amb metodologia SCRUM, separat per sprints.
     URL (En espera)
 
-
-
 ### PROTOTIP GRÀFIC :
   - Els prototips gràfics com els Mockups i Wireframes els realitzarem amb Penpot.
     URL Penpot: https://design.penpot.app/#/workspace/f5fe9278-89db-81e9-8004-fb0eecd41217/96c4bd8e-df43-800f-8005-9d499dc21428?page-id=96c4bd8e-df43-800f-8005-9d499dc21429
@@ -34,9 +33,7 @@
   2n dia, hem dissenyat tant la base de dades, com els diagrames d'entitat - relació i preparat l'arquitectura de GitHub i directoris del projecte. 
   La base de dades ja està creada i finalitzada (MySql)
 
-
 ### URL Diagrama entitat relació: https://app.diagrams.net/#G1TKbrb3gLTKSwPoLYVMBvoF4VPat1ewLT#%7B%22pageId%22%3A%22KMXDIqi0qLqnxIe9qrFn%22%7D
-
 
 
 # Aquest fitxer ha de contenir com a mínim:
