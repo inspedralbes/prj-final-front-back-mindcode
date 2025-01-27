@@ -4,7 +4,8 @@
     "description": "Retrieve a list of quiz",
     "request":{
         "body":{
-            "id": "int"
+            "user_id": "int",
+            "quiz_id": "int"
         }
     },
     "response": {
@@ -13,12 +14,7 @@
             "description": "Quiz retrieved successfully",
             "body": [
                 {
-                    "questions": "string",
-                    "results": "string",
-                    "language_id": "string",
-                    "sublanguage_id": "string",
-                    "data": "date",
-                    "answered": "boolean"
+                    "questions": "string"
                 }
             ]
         }

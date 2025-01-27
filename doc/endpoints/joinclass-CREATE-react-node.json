@@ -5,7 +5,8 @@
     "request": {
         "contentType": "application/json",
         "body": {
-            "id": "string"
+            "user_id": "string",
+            "class_code": "string"
         }
     },
     "response": {
@@ -14,9 +15,10 @@
             "body": {
                 "message": "Student has been successfully enrolled in the class",
                 "class_details": {
-                    "idclass": "string",
-                    "name": "string",
-                    "language": "string"
+                    "class_id": "string",
+                    "language_info": "string",
+                    "teacher_info": "string",
+                    "classmate_info": "string"
                 }
             }
         },

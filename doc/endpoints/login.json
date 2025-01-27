@@ -13,7 +13,7 @@
         "201": {
             "description": "Login successfully",
             "body": {
-                "id": "string",
+                "user_id": "string",
                 "id_session": "string",
                 "name": "string",
                 "img_profile": "string"

@@ -12,10 +12,9 @@
             "201": {
                 "description": "Sublanguages created successfully",
                 "body": {
-                    "id":"int",
+                    "sublanguage_id":"int",
                     "idlanguage": "int",
-                    "name": "string",
-                    "system_prompt": "string"
+                    "name": "string"
                 }
             },
             "400": {
