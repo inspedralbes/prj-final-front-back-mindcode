@@ -1,8 +1,7 @@
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
-import ContentArea from "./components/ContentArea";
-
-
+import UserChat from "./components/UserChat";
+import AIChat from "./components/AIChat";
 
 const Page = () => {
   return (
@@ -13,9 +12,9 @@ const Page = () => {
       <div className="flex flex-col w-full">
         <Navbar />
 
-        <ContentArea />
+        <AIChat />
       </div>
-    </div>
+      </div>
   );
 };
 
