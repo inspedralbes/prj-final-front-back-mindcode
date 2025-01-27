@@ -1,5 +1,5 @@
 import React from 'react';
-import Login from './components/Login.js'
+import Login from '../pages/Login'
 
 const  Signup= () => {
   return (
@@ -8,3 +8,4 @@ const  Signup= () => {
 };
 
 export default Signup;
+
