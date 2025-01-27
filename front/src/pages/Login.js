@@ -1,18 +1,33 @@
-import React from 'react';
+"use client";
 
-const Signup = () => {
+import React from "react";
+import { useRouter } from "next/navigation";
+import Navbar from "../app/components/Navbar";
+
+const Login = () => {
+  const router = useRouter();
+
+  const handleLogin = () => {
+    router.push("/StPage");
+  }; 
+
   return (
     <div className="min-h-screen bg-gray text-gray-900 flex justify-center">
       <div className="max-w-screen-xl m-0 sm:m-10 bg-black shadow sm:rounded-lg flex flex-row-reverse justify-center flex-1">
-
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-          <div className=" mt-60 flex-col items-center">
+          <div className="mt-60 flex-col items-center">
             <h1 className="text-xl xl:text-xl font-extrabold text-white">
               Autentiqueu-vos utilitzant el vostre compte a:
             </h1>
+            <div className="flex flex-col w-full">
+        <Navbar />
+        </div>
             <div className="w-full flex-1 mt-8">
               <div className="flex flex-col items-center">
-                <button className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-white text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
+                <button
+                  onClick={handleLogin} 
+                  className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-white text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
+                >
                   <div className="bg-white p-2 rounded-full">
                     <svg className="w-4" viewBox="0 0 533.5 544.3">
                       <path
@@ -44,7 +59,7 @@ const Signup = () => {
           <div
             className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('/IA.png')`, 
+              backgroundImage: `url('/IA.png')`,
             }}
           ></div>
         </div>
@@ -53,4 +68,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
