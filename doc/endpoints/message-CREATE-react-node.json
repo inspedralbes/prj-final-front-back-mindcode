@@ -4,7 +4,8 @@
     "description": "Create a new message",
     "request": {
         "body": {
-            "message": "string"
+            "message": "string",
+            "language": "string"
         }
     },
     "response": {
