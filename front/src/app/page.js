@@ -2,6 +2,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import UserChat from "./components/UserChat";
 import AIChat from "./components/AIChat";
+import { User } from "lucide-react";
 
 const Page = () => {
   return (
@@ -12,7 +13,7 @@ const Page = () => {
       <div className="flex flex-col w-full">
         <Navbar />
 
-        <AIChat />
+        <UserChat />
       </div>
       </div>
   );

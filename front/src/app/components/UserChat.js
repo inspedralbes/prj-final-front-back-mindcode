@@ -7,20 +7,19 @@ import { RiRobot3Line } from "react-icons/ri";
 const UserChat = () => {
   const [message, setMessage] = useState("");  
   const [messages, setMessages] = useState([   
-    { sender: 'bot', text: 'Hola canelon' },
-    { sender: 'user', text: 'Hola perrito' },
+
   ]);
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
   
-    setMessages(prevMessages => prevMessages.concat({ sender: 'user', text: message }));
+    setMessages(prevMessages => prevMessages.concat({ sender: 'user', text: message.trim() }));
     setMessage(""); 
   };
   
   return (
-    <div className="max-w-6xl w-full h-full flex flex-col p-6 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-700 mx-auto">
-      <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-900 rounded-md shadow-inner">
+    <div className="w-full h-full flex flex-col pl-[20%] pr-[20%] bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-700 mx-auto">
+      <div className="flex-grow overflow-y-auto p-4 space-y-4 rounded-md">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.sender === 'bot' && (
