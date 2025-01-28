@@ -22,7 +22,7 @@ const UserChat = () => {
       <div className="flex-grow overflow-y-auto p-4 space-y-4 rounded-md">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.sender === 'bot' && (
+            {msg.sender === 'ai' && (
               <RiRobot3Line className="w-10 h-10 mr-2" />
             )}
             <div
