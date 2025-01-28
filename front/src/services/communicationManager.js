@@ -1,4 +1,4 @@
-const URL = import.meta.env.VITE_API_ROUTE;
+const URL = import.meta.env.REACT_APP_ROUTE;
 
   //crear classe
 
