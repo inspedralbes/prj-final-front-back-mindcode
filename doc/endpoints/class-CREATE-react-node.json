@@ -5,19 +5,19 @@
     "request": {
         "contentType": "application/json",
         "body": {
-            "name": "string",
-            "teacher_id": "integer",
-            "language": "string"
+            "teacher_id": "string",
+            "name": "string"
         }
     },
     "response": {
         "201": {
             "description": "Class created successfully",
             "body": {
-                "idclass": "integer",
+                "class_id": "string",
                 "name": "string",
-                "teacher_id": "integer",
-                "language": "string"
+                "teacher_id": "string",
+                "language": "string",
+                "class_code": "string"
             }
         },
         "400": {
