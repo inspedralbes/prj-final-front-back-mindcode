@@ -2,7 +2,7 @@ import React from 'react';
 
 const Signup = () => {
   return (
-    <div className="min-h-screen bg-gray text-gray-900 flex justify-center">
+    <div className="min-h-screen bg-black text-gray-900 flex justify-center">
       <div className="max-w-screen-xl m-0 sm:m-10 bg-black shadow sm:rounded-lg flex flex-row-reverse justify-center flex-1">
 
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
