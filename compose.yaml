@@ -12,7 +12,7 @@ services:
     depends_on:
       - mindcode-mysql
       - mindcode-mongo
-    command: sh -c "cp .env.DEV .env && npm install && node index.js"
+    command: sh -c "cp .env.DEV .env && npm install && nodemon -L index.js"
   
   mindcode-front:
     image: node:23-alpine3.20
