@@ -1,8 +1,8 @@
-const api= ""
+const URL = process.env.REACT_APP_URL;
 
 export async function chargeMessage(userId) {
     try {
-        const response = await fetch(`${api}/messages?userId=${userId}`, {
+        const response = await fetch(`${URL}/messages?userId=${userId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,8 +21,9 @@ export async function chargeMessage(userId) {
 
 
 export async function sendMessage(body) {
+    console.log("New Message", body)
     try {
-        const response = await fetch(`${api}/message/create`, {
+        const response = await fetch(`${URL}/message/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
