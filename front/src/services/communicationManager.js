@@ -1,4 +1,4 @@
-const URL = process.env.REACT_APP_URL;
+const URL = process.env.NEXT_PUBLIC_URL;
 
 export async function chargeMessage(userId) {
     try {
@@ -23,6 +23,7 @@ export async function chargeMessage(userId) {
 export async function sendMessage(body) {
     console.log("New Message", body)
     try {
+        console.log("mensaje a: ",URL)
         const response = await fetch(`${URL}/message/create`, {
             method: 'POST',
             headers: {
