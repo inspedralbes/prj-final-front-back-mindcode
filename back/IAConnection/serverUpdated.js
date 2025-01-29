@@ -20,12 +20,10 @@ const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Función para enviar el mensaje recibido a la IA
 const sendToAI = async (message) => {
     try {
         if (typeof message !== 'string') {
@@ -47,7 +45,6 @@ const sendToAI = async (message) => {
     }
 };
 
-// Endpoint para recibir el mensaje del front y reenviarlo a la IA
 app.post('/api/ai', async (req, res) => {
     const { message } = req.body;
 
@@ -71,18 +68,15 @@ app.post('/api/ai', async (req, res) => {
     }
 });
 
-// Manejo de rutas no encontradas
 app.use((req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada. Servidor levantado y corriendo' });
 });
 
-// Manejo global de errores
 app.use((err, req, res, next) => {
     logger.error(err.stack);
     res.status(500).json({ error: 'Ocurrió un error inesperado en el servidor.' });
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
