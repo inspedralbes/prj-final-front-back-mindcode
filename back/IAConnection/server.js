@@ -33,7 +33,7 @@ const sendToAI = async (message) => {
 };
 
 // Endpoint para recibir el mensaje del front y reenviarlo a la IA
-app.post('/api/ai', async (req, res) => {
+app.post('/message/create', async (req, res) => {
     const { message } = req.body;
 
     // Validación del mensaje
