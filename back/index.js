@@ -2,12 +2,16 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
+import cors from 'cors';
+
+
 
 // Load environment variables from .env file
 dotenv.config();
 
 // Create an Express application
 const app = express();
+app.use(cors());
 const port = process.env.PORT;
 
 // Parse JSON bodies for this app
@@ -88,7 +92,7 @@ app.post('/api/class', async (req, res) => {
         );
         await connection.end();
 
-        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code});
+        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code });
     } catch (error) {
         console.error('Error creating class:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -120,6 +124,8 @@ app.post('/api/class/enroll', async (req, res) => {
 
                 const { name, language_info, teacher_info, classmate_info } = await getClassInfo(class_id);
 
+                console.log("No es el getClassInfo")
+
                 const connection = await createConnection();
                 const [result] = await connection.execute(
                     'UPDATE USER SET class = ? WHERE id = ?',
@@ -132,7 +138,7 @@ app.post('/api/class/enroll', async (req, res) => {
                 } else {
 
                     const class_details = { name, class_id, language_info, teacher_info, classmate_info };
-                    res.json({ message: 'Student has been successfully enrolled in the class', class_details  });
+                    res.json({ message: 'Student has been successfully enrolled in the class', class_details });
                 }
             } catch (error) {
                 console.error('Error adding student to class:', error);
@@ -144,6 +150,7 @@ app.post('/api/class/enroll', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 function getClassInfo(class_id) {
     return new Promise(async (resolve, reject) => {
@@ -174,20 +181,22 @@ function getClassInfo(class_id) {
                 console.log("ID professors: ", parsed_teacher_id);
 
                 const teacher_info = await Promise.all(parsed_teacher_id.map(async (id) => {
-                    const connection = await createConnection();
-                    const [teacher] = await connection.execute(
-                        'SELECT name FROM USER WHERE id = ?',
-                        [id]
-                    );
-                    await connection.end();
+                        const connection = await createConnection();
+                        const [teacher] = await connection.execute(
+                            'SELECT name FROM USER WHERE id = ?',
+                            [id]
+                        );
+                        await connection.end();
 
-                    console.log("Teacher info after SELECT: ", teacher[0]);
+                        console.log("Teacher info after SELECT: ", teacher[0]);
 
-                    return { id, name: teacher[0].name };
-                }));
+                        return { id, name: teacher[0].name };
+                    }));
 
 
-               const language_info = JSON.parse(language);
+                const language_info = JSON.parse(language);
+
+                console.log(language_info)
 
                 resolve({ class_id, name, language_info, teacher_info, classmate_info });
             }

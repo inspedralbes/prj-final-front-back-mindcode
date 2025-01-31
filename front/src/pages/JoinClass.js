@@ -1,22 +1,34 @@
 "use client";
 
 import React, { useState } from "react";
-import StPage from "../pages/StPage"; 
+import StPage from "../pages/StPage";
+import { joinClass } from "../services/communicationManager"; // Import joinClass function
 
 const JoinClass = () => {
-  const [showLogin, setShowLogin] = useState(false); 
-  const [username, setUsername] = useState(""); 
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false); 
+  const [showLogin, setShowLogin] = useState(false);
+  const [classCode, setClassCode] = useState(""); // Add state for class code
+  const [userId, setUserId] = useState(""); // Add state for user ID
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogin = () => {
-    if (username && password) {
-      console.log("Username:", username);
-      console.log("Password:", password);
 
-      setIsAuthenticated(true);
+  const handleLogin = async () => {
+    if ( classCode && userId) {
+      try {
+        console.log("Attempting to join class...");
+        const response = await joinClass(classCode, userId);
+        console.log("Join class response:", response);
+
+        if (response.class_details) {
+          setIsAuthenticated(true);
+        } else {
+          alert("Failed to join class. Please check your details.");
+        }
+      } catch (error) {
+        console.error("Error joining class:", error);
+        alert("An error occurred while joining the class.");
+      }
     } else {
-      alert("Please enter both username and password.");
+      alert("Please enter all required fields.");
     }
   };
 
@@ -42,26 +54,26 @@ const JoinClass = () => {
               </div>
             ) : (
               <div className="w-full flex-1 mt-8">
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-4"> 
                   <input
                     type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Class Code"
+                    value={classCode}
+                    onChange={(e) => setClassCode(e.target.value)}
                     className="w-full max-w-xs p-2 border rounded-lg"
                   />
                   <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    type="text"
+                    placeholder="User ID"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                     className="w-full max-w-xs p-2 border rounded-lg"
                   />
                   <button
                     className="w-40 max-w-xs font-bold shadow-sm rounded-lg py-3 bg-blue-500 text-white flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                     onClick={handleLogin}
                   >
-                    Log In
+                    Log In & Join Class
                   </button>
                 </div>
               </div>

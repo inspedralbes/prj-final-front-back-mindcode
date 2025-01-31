@@ -1,5 +1,4 @@
-const URL = import.meta.env.REACT_APP_ROUTE;
-
+const URL = process.env.NEXT_PUBLIC_URL;
   //crear classe
 
 export async function createClass(name,teacher_id) {
@@ -52,31 +51,37 @@ export async function createClass(name,teacher_id) {
 
     //unirse a clase
 
-    export async function joinClass(class_code,user_id) {
-        try {
-          if (!class_code || !user_id) {
-            throw new Error('Class_code and user-_id are required');
-          }
-      
-          const response = await fetch(`${URL}/api/class/enroll`,{
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(response),
-        });
-          console.log(response)
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error class doesn't exist: ${errorText}`);
-          }
-      
-          const data = await response.json();
-          console.log(data);
-          return data;
-        } catch (error) {
-          console.error("Error en Communication Manager:", error);
-          throw error;
+  export async function joinClass(class_code, user_id) {
+    try {
+        if (!class_code || !user_id) {
+            throw new Error('Class_code and user_id are required');
         }
-      };
- 
+
+        console.log("Attempting to join class with:", { class_code, user_id });
+
+        const response = await fetch(`${URL}/api/class/enroll`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({class_code, user_id}),
+        });
+
+        console.log("Server Response:", response);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("Join class success:", data);
+        return data;
+    } catch (error) {
+        console.error("Error in Communication Manager:", error);
+        throw error;
+    }
+}
+
+
+
