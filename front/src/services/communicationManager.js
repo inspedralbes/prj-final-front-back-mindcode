@@ -1,5 +1,32 @@
 const URL = process.env.NEXT_PUBLIC_URL;
 
+export async function googleLogin() {
+    google.accounts.oauth2.initTokenClient({
+        GOOGLE_CLIENT_ID: "", 
+        scope: "email profile openid",
+        callback: (response) => {
+          if (response.access_token) {
+            fetch('/api/auth/google', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ token: response.access_token })
+            })
+            .then(res => res.json())
+            .then(data => {
+              console.log('Usuario autenticado:', data);
+            
+            })
+            .catch(error => {
+              console.error('Error en la autenticación:', error);
+            });
+          }
+        }
+      }).requestAccessToken();
+}
+
+
 export async function chargeMessage(userId) {
     try {
         const response = await fetch(`${URL}/messages?userId=${userId}`, {

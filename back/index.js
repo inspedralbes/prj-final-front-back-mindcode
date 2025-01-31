@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
+import { OAuth2Client } from 'google-auth-library';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -196,6 +197,46 @@ function getClassInfo(class_id) {
         }
     });
 }
+
+async function verifyToken(tokenId) {
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    }
+    catch{
+        console.error(error)
+    }
+}
+
+app.post('/api/auth/google', async (req, res) => {
+    const { tokenId } = req.body;
+  
+    try {
+      const payload = await verifyToken(tokenId);
+  
+      const { sub, name, email } = payload;
+  
+      const connection = await mysql.createConnection(dbConfig);
+      const [rows] = await connection.execute('SELECT * FROM user WHERE google_id = ?', [sub]);
+  
+      if (rows.length === 0) {
+        await connection.execute(
+          'INSERT INTO user (google_id, name, email) VALUES (?, ?, ?)',
+          [sub, name, email]
+        );
+      }
+  
+      await connection.end();
+  
+      res.json({ message: 'Usuario autenticado correctamente', user: { name, email, google_id: sub } });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ error: 'No se pudo verificar el token de Google' });
+    }
+  });
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
