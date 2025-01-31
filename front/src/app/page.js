@@ -7,43 +7,43 @@ import JoinClass from "../pages/JoinClass";
 
 
 const Page = () => {
-  const [currentPage, setCurrentPage ] = useState('login');
+  const [currentPage, setCurrentPage] = useState('login');
 
   const renderPage = () => {
-    switch(currentPage) {
+    switch (currentPage) {
       case 'login':
         return <Login />;
-        case 'stpage':
-          return <StPage />;
-          case 'joinclass':
-          return <JoinClass />;
-          default:
-            return <Login />;
+      case 'stpage':
+        return <StPage />;
+      case 'joinclass':
+        return <JoinClass />;
+      default:
+        return <Login />;
 
     }
   }
 
-  return(
+  return (
     <div>
       {renderPage()}
 
-      <div className="fixed bottom-4 right-4 flex gap-4">
+      <div className="fixed bottom-4 right-4 flex gap-4 mb-10">
 
         <button
-        onClick={() => setCurrentPage('login')}
-        className="px-4 py-2 bg-gray-400 text-white rounded">
+          onClick={() => setCurrentPage('login')}
+          className="px-4 py-2 bg-gray-400 text-white rounded">
           Login
         </button>
 
         <button
-        onClick={() => setCurrentPage('joinclass')}
-        className="px-4 py-2 bg-gray-500 text-white rounded">
+          onClick={() => setCurrentPage('joinclass')}
+          className="px-4 py-2 bg-gray-500 text-white rounded">
           Join Class
         </button>
 
         <button
-        onClick={() => setCurrentPage('stpage')}
-        className="px-4 py-2 bg-gray-600 text-white rounded">
+          onClick={() => setCurrentPage('stpage')}
+          className="px-4 py-2 bg-gray-600 text-white rounded">
           Student Page
         </button>
       </div>

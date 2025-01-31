@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { FaPaperPlane, FaUserCircle } from "react-icons/fa";
 import { RiRobot3Line } from "react-icons/ri";
 import { sendMessage, chargeMessages } from "services/communicationManager"; // Asegúrate de importar sendMessage
+import MarkdownView from 'react-showdown';
 
 const UserChat = () => {
-  const [message, setMessage] = useState("");  
+  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
   const handleSendMessage = async () => {
@@ -14,14 +15,16 @@ const UserChat = () => {
 
     const userMessage = { sender: 'user', text: message.trim() };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setMessage(""); 
+    setMessage("");
 
     try {
 
       const response = await sendMessage({ text: message.trim() });
       console.log("Respuesta del servidor:", response);
-      if (response && response.text) {
-        const aiMessage = { sender: 'ai', text: response.text };
+
+
+      if (response) {
+        const aiMessage = { sender: 'ai', text: response };
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
       }
     } catch (error) {
@@ -38,10 +41,13 @@ const UserChat = () => {
               <RiRobot3Line className="w-10 h-10 mr-2" />
             )}
             <div
-              className={`px-4 py-2 rounded-lg max-w-xs ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-400 text-white'}`}
+              className={`px-4 py-2 rounded-lg max-w-[80%] ${msg.sender === 'user' ? 'bg-blue-700 text-white' : 'bg-gray-700 text-white'}`}
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
-              {msg.text}
+              <MarkdownView
+                markdown={msg.text}
+                options={{ tables: true, emoji: true }}
+              />
             </div>
             {msg.sender === 'user' && (
               <FaUserCircle className="w-10 h-10 ml-2" />

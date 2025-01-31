@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
+import cors from 'cors';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -9,6 +10,9 @@ dotenv.config();
 // Create an Express application
 const app = express();
 const port = process.env.PORT;
+
+// Enable CORS
+app.use(cors());
 
 // Parse JSON bodies for this app
 app.use(express.json());
@@ -150,6 +154,8 @@ app.post('/message/create', async (req, res) => {
 
 
     console.log(message);
+
+
     // Validación del mensaje
     if (!message || typeof message !== 'string' || message.trim() === '') {
         return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
@@ -158,7 +164,24 @@ app.post('/message/create', async (req, res) => {
     try {
         const aiResponse = await sendToAI(message);
 
-        res.status(200).json(aiResponse);
+        const returnMessage = aiResponse.content;
+
+        // Extract the content within <think> tags
+        const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
+        
+        let restOfContent = "Sorry, something went wrong. Please try again.";
+
+        if (thinkTagContent && thinkTagContent[1]) {
+            const extractedContent = thinkTagContent[1];
+            console.log("Extracted Content: ", extractedContent);
+
+            restOfContent = returnMessage.replace(thinkTagContent[0], '').trim();
+            console.log("Rest of Content: ", restOfContent);
+        } else {
+            console.log("No <think> tag found in the response.");
+        }
+
+        res.status(200).json(restOfContent);
     } catch (error) {
         console.error('Error en el servidor:', error);
 
@@ -227,12 +250,12 @@ function getClassInfo(class_id) {
 
 const sendToAI = async (message) => {
     console.log("sending message");
-    const response = await fetch('http://localhost:4567', {
+    const response = await fetch('http://192.168.17.143:4567', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({userPrompt: message})
+        body: JSON.stringify({ userPrompt: message })
     });
 
     console.log("answer recieved");

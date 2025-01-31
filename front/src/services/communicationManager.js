@@ -29,7 +29,7 @@ export async function sendMessage(body) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({ message: body.text })
         });
 
         if (!response.ok) {
