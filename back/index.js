@@ -49,7 +49,7 @@ async function testConnection() {
     }
 }
 
-testConnection();
+// testConnection(); Removed for testing outside docker
 
 app.post('/api/class', async (req, res) => {
     const { name, teacher_id } = req.body;
@@ -88,7 +88,7 @@ app.post('/api/class', async (req, res) => {
         );
         await connection.end();
 
-        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code});
+        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code });
     } catch (error) {
         console.error('Error creating class:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -132,7 +132,7 @@ app.post('/api/class/enroll', async (req, res) => {
                 } else {
 
                     const class_details = { name, class_id, language_info, teacher_info, classmate_info };
-                    res.json({ message: 'Student has been successfully enrolled in the class', class_details  });
+                    res.json({ message: 'Student has been successfully enrolled in the class', class_details });
                 }
             } catch (error) {
                 console.error('Error adding student to class:', error);
@@ -142,6 +142,34 @@ app.post('/api/class/enroll', async (req, res) => {
     } catch (error) {
         console.error('Error verifying class code:', error);
         return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/message/create', async (req, res) => {
+    const { message } = req.body;
+
+
+    console.log(message);
+    // Validación del mensaje
+    if (!message || typeof message !== 'string' || message.trim() === '') {
+        return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
+    }
+
+    try {
+        const aiResponse = await sendToAI(message);
+
+        res.status(200).json(aiResponse);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+
+        // Manejo de errores específicos
+        // if (error.message.includes('La IA respondió con un error')) {
+        //     res.status(502).json({ error: 'Error en la comunicación con la IA: ' + error.message });
+        // } else if (error.message.includes('No se recibió respuesta de la IA')) {
+        //     res.status(504).json({ error: 'La IA no está disponible en este momento.' });
+        // } else {
+        //     res.status(500).json({ error: 'Hubo un problema al procesar la solicitud.' });
+        // }
     }
 });
 
@@ -187,7 +215,7 @@ function getClassInfo(class_id) {
                 }));
 
 
-               const language_info = JSON.parse(language);
+                const language_info = JSON.parse(language);
 
                 resolve({ class_id, name, language_info, teacher_info, classmate_info });
             }
@@ -196,6 +224,35 @@ function getClassInfo(class_id) {
         }
     });
 }
+
+const sendToAI = async (message) => {
+    console.log("sending message");
+    const response = await fetch('http://localhost:4567', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({userPrompt: message})
+    });
+
+    console.log("answer recieved");
+
+    if (!response.ok) {
+        throw new Error('La IA respondió con un error: ' + response.statusText);
+    }
+
+    const aiResponse = await response.json();
+
+    if (!aiResponse) {
+        throw new Error('No se recibió respuesta de la IA');
+    }
+
+    console.log(aiResponse);
+
+    console.log("answer sent back");
+
+    return aiResponse;
+};
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
