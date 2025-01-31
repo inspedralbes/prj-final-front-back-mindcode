@@ -1,7 +1,7 @@
 const URL = process.env.NEXT_PUBLIC_URL;
   //crear classe
 
-export async function createClass(name,teacher_id) {
+export async function createClass(name, teacher_id) {
     try {
       if (!name || !teacher_id) {
         throw new Error('Name and teacher_id are required');
@@ -12,7 +12,7 @@ export async function createClass(name,teacher_id) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(response),
+      body: JSON.stringify({name, teacher_id}),
     });
       console.log(response)
       if (!response.ok) {

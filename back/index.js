@@ -54,7 +54,7 @@ async function testConnection() {
     }
 }
 
-// testConnection(); Removed for testing outside docker
+testConnection();
 
 app.post('/api/class', async (req, res) => {
     const { name, teacher_id } = req.body;
