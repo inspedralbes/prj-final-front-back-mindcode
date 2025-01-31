@@ -4,8 +4,6 @@ import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
 import cors from 'cors';
 
-
-
 // Load environment variables from .env file
 dotenv.config();
 
@@ -13,6 +11,9 @@ dotenv.config();
 const app = express();
 app.use(cors());
 const port = process.env.PORT;
+
+// Enable CORS
+app.use(cors());
 
 // Parse JSON bodies for this app
 app.use(express.json());
@@ -53,7 +54,7 @@ async function testConnection() {
     }
 }
 
-testConnection();
+// testConnection(); Removed for testing outside docker
 
 app.post('/api/class', async (req, res) => {
     const { name, teacher_id } = req.body;
@@ -151,6 +152,52 @@ app.post('/api/class/enroll', async (req, res) => {
     }
 });
 
+app.post('/message/create', async (req, res) => {
+    const { message } = req.body;
+
+
+    console.log(message);
+
+
+    // Validación del mensaje
+    if (!message || typeof message !== 'string' || message.trim() === '') {
+        return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
+    }
+
+    try {
+        const aiResponse = await sendToAI(message);
+
+        const returnMessage = aiResponse.content;
+
+        // Extract the content within <think> tags
+        const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
+        
+        let restOfContent = "Sorry, something went wrong. Please try again.";
+
+        if (thinkTagContent && thinkTagContent[1]) {
+            const extractedContent = thinkTagContent[1];
+            console.log("Extracted Content: ", extractedContent);
+
+            restOfContent = returnMessage.replace(thinkTagContent[0], '').trim();
+            console.log("Rest of Content: ", restOfContent);
+        } else {
+            console.log("No <think> tag found in the response.");
+        }
+
+        res.status(200).json(restOfContent);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+
+        // Manejo de errores específicos
+        // if (error.message.includes('La IA respondió con un error')) {
+        //     res.status(502).json({ error: 'Error en la comunicación con la IA: ' + error.message });
+        // } else if (error.message.includes('No se recibió respuesta de la IA')) {
+        //     res.status(504).json({ error: 'La IA no está disponible en este momento.' });
+        // } else {
+        //     res.status(500).json({ error: 'Hubo un problema al procesar la solicitud.' });
+        // }
+    }
+});
 
 function getClassInfo(class_id) {
     return new Promise(async (resolve, reject) => {
@@ -196,8 +243,6 @@ function getClassInfo(class_id) {
 
                 const language_info = JSON.parse(language);
 
-                console.log(language_info)
-
                 resolve({ class_id, name, language_info, teacher_info, classmate_info });
             }
         } catch (error) {
@@ -205,6 +250,35 @@ function getClassInfo(class_id) {
         }
     });
 }
+
+const sendToAI = async (message) => {
+    console.log("sending message");
+    const response = await fetch('http://192.168.17.143:4567', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userPrompt: message })
+    });
+
+    console.log("answer recieved");
+
+    if (!response.ok) {
+        throw new Error('La IA respondió con un error: ' + response.statusText);
+    }
+
+    const aiResponse = await response.json();
+
+    if (!aiResponse) {
+        throw new Error('No se recibió respuesta de la IA');
+    }
+
+    console.log(aiResponse);
+
+    console.log("answer sent back");
+
+    return aiResponse;
+};
 
 app.get('/', (req, res) => {
     res.send('Hello World!');

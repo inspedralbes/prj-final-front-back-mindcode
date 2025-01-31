@@ -1,6 +1,6 @@
 "use client"; 
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,6 +16,10 @@ const Navbar = () => {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
+  useEffect(() => {
+    setDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }, []);
 
   return (
     <nav className="bg-gray-800 text-white dark:bg-gray-900 dark:text-gray-200">
