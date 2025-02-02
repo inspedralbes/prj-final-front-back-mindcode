@@ -82,14 +82,15 @@ const JoinClass = () => {
             )}
           </div>
         </div>
-
         <div className="flex-1 bg-black text-center hidden lg:flex">
-          <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('/IA.png')`,
-            }}
-          ></div>
+          <video
+          className="m-12 xl:m-16 w-3/4 max-w-xl rounded-lg shadow-lg"
+          autoPlay
+          loop
+          muted
+          playsInline>
+          <source src="/Animated-Robot.mp4" type="video/mp4" />
+          </video>
         </div>
       </div>
     </div>
