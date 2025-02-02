@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import StPage from "../pages/StPage";
+import PfPage from "../pages/PfPage";
 import Login from "../pages/Login";
 import JoinClass from "../pages/JoinClass";
 
@@ -17,6 +18,8 @@ const Page = () => {
           return <StPage />;
           case 'joinclass':
           return <JoinClass />;
+          case 'pfpage':
+          return <PfPage />;
           default:
             return <Login />;
 
@@ -45,6 +48,11 @@ const Page = () => {
         onClick={() => setCurrentPage('stpage')}
         className="px-4 py-2 bg-gray-600 text-white rounded">
           Student Page
+        </button>
+        <button
+        onClick={() => setCurrentPage('pfpage')}
+        className="px-4 py-2 bg-gray-600 text-white rounded">
+          Teacher Page
         </button>
       </div>
 

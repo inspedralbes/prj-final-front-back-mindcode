@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
+import cors from 'cors'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -9,7 +10,7 @@ dotenv.config();
 // Create an Express application
 const app = express();
 const port = process.env.PORT;
-
+app.use(cors());
 // Parse JSON bodies for this app
 app.use(express.json());
 
@@ -196,6 +197,79 @@ function getClassInfo(class_id) {
         }
     });
 }
+
+app.post('/api/language', async (req, res) => {
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'Language name are required' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [result] = await connection.execute(
+            'INSERT into LANGUAGES (name) VALUES (?)',
+            [name]
+        );
+        await connection.end();
+
+        res.status(201).json({ idlanguage: result.insertId, name});
+    } catch (error) {
+        console.error('Error creating LANGUAGE:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/class/languages', async (req, res) => {
+    const { class_id } = req.query;
+
+    if (!class_id) {
+        return res.status(400).json({ error: 'Class ID is required' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT language FROM CLASS WHERE idclass = ?',
+            [class_id]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Class not found' });
+        }
+
+        const language_info = JSON.parse(rows[0].language); 
+        res.status(200).json({ count: language_info.length, languages: language_info });
+    } catch (error) {
+        console.error('Error fetching languages:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+app.get('/api/user', async (req, res) => {
+    const { class_id } = req.query; 
+
+    if (!class_id) {
+        return res.status(400).json({ error: 'Class ID is required' }); 
+    }
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT name, gmail FROM USER WHERE class_id = ?',
+            [class_id]
+        );
+        await connection.end();
+
+        res.status(200).json(rows); 
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
