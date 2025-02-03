@@ -8,21 +8,21 @@
         "language": "string"
     },
     "response": {
-        "200":{
-        "status": "success",
-        "message": "Class updated successfully",
-        "data": {
-            "class_id": "int",
-            "name": "string",
-            "teacher_id": "string",
-            "language": "string"
+        "200": {
+            "status": "success",
+            "message": "Class updated successfully",
+            "data": {
+                "class_id": "int",
+                "name": "string",
+                "teacher_id": "string",
+                "language": "string"
+            }
+        },
+        "400": {
+            "description": "Invalid input"
+        },
+        "404": {
+            "description": "Class not found"
         }
-    },
-    "400":{
-        "description": "Invalid input"
-    },
-    "404":{
-        "description": "Class not found"
     }
-}
 }
