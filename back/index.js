@@ -26,6 +26,8 @@ const dbConfig = {
     database: process.env.DB_DATABASE
 };
 
+const AIHOST = process.env.AIHOST
+
 // Unique ID generator used in class code generation
 const uid = new ShortUniqueId({ length: 10 });
 
@@ -253,7 +255,7 @@ function getClassInfo(class_id) {
 
 const sendToAI = async (message) => {
     console.log("sending message");
-    const response = await fetch('http://192.168.17.143:4567', {
+    const response = await fetch(`http://${AIHOST}:4567`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
