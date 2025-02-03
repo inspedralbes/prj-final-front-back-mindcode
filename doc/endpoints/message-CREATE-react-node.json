@@ -4,14 +4,14 @@
     "description": "Create a new message",
     "request": {
         "body": {
-            "message": "string"
+            "message": "string",
+            "language": "string"
         }
     },
     "response": {
         "201": {
             "description": "Message created successfully",
             "body": {
-                "message_id": "string",
                 "message": "string"
             }
         },

@@ -13,7 +13,7 @@
         "201": {
             "description": "Class created successfully",
             "body": {
-                "class_id": "string",
+                "class_id": "integer",
                 "name": "string",
                 "teacher_id": "string",
                 "language": "string",

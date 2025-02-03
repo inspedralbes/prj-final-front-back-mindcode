@@ -2,30 +2,32 @@
 
 import React, { useState } from "react";
 import StPage from "../pages/StPage";
-import { joinClass } from "../services/communicationManager"; // Import joinClass function
+import { createClass } from "../services/communicationManager"; // Import createClass function
 
 const JoinClass = () => {
   const [showLogin, setShowLogin] = useState(false);
-  const [classCode, setClassCode] = useState(""); // Add state for class code
+  const [className, setClassName] = useState(""); // Add state for class name
   const [userId, setUserId] = useState(""); // Add state for user ID
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
-  const handleLogin = async () => {
-    if ( classCode && userId) {
+  const handleCreate = async () => {
+    if ( className && userId) {
       try {
-        console.log("Attempting to join class...");
-        const response = await joinClass(classCode, userId);
-        console.log("Join class response:", response);
+        console.log("Attempting to create class...");
+        const response = await createClass(className, userId);
+        console.log("Create class response:", response);
 
-        if (response.class_details) {
+        console.log(response.class_code);
+
+        if (response) {
           setIsAuthenticated(true);
         } else {
-          alert("Failed to join class. Please check your details.");
+          alert("Failed to create class. Please check your details.");
         }
       } catch (error) {
-        console.error("Error joining class:", error);
-        alert("An error occurred while joining the class.");
+        console.error("Error creating class:", error);
+        alert("An error occurred while creating the class.");
       }
     } else {
       alert("Please enter all required fields.");
@@ -48,7 +50,7 @@ const JoinClass = () => {
                     className="w-40 max-w-xs font-bold shadow-sm rounded-lg py-3 bg-white text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                     onClick={() => setShowLogin(true)}
                   >
-                    <span className="ma-4">JOIN CLASS</span>
+                    <span className="ma-4">CREATE CLASS</span>
                   </button>
                 </div>
               </div>
@@ -57,9 +59,9 @@ const JoinClass = () => {
                 <div className="flex flex-col items-center gap-4"> 
                   <input
                     type="text"
-                    placeholder="Class Code"
-                    value={classCode}
-                    onChange={(e) => setClassCode(e.target.value)}
+                    placeholder="Class Name"
+                    value={className}
+                    onChange={(e) => setClassName(e.target.value)}
                     className="w-full max-w-xs p-2 border rounded-lg"
                   />
                   <input
@@ -71,9 +73,9 @@ const JoinClass = () => {
                   />
                   <button
                     className="w-40 max-w-xs font-bold shadow-sm rounded-lg py-3 bg-blue-500 text-white flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
-                    onClick={handleLogin}
+                    onClick={handleCreate}
                   >
-                    Log In & Join Class
+                    Log In & Create Class
                   </button>
                 </div>
               </div>

@@ -1,10 +1,11 @@
+
 "use client"; 
 
 import React from "react";
-
 import Sidebar from "../app/components/Sidebar";
 import Navbar from "../app/components/Navbar";
-import ContentArea from "../app/components/ContentArea";
+import UserChat from "./UserChat";
+
 
 const Page = () => {
 
@@ -14,7 +15,7 @@ const Page = () => {
       <Sidebar />
       <div className="flex flex-col w-full">
         <Navbar />
-        <ContentArea />
+        <UserChat />
       </div>
     </div>
   );
