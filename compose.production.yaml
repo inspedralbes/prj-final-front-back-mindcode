@@ -1,0 +1,56 @@
+services:
+  mindcode-front:
+    container_name: mindcode-front
+    image: "node:23-alpine3.20"
+    working_dir: /usr/src/app
+    volumes:
+      - ./front:/usr/src/app
+    ports:
+      - 5173:3000
+    tmpfs:
+      - /tmp
+    restart: always
+    command: sh -c "npm install && npm run start"
+
+  mindcode-back:
+    image: node:23-alpine3.20
+    container_name: mindcode-back
+    working_dir: /usr/src/app
+    volumes:
+      - ./back:/usr/src/app
+    ports:
+      - 3000:3000
+    tmpfs:
+      - /tmp
+    restart: always
+    command: sh -c "cp .env.prod .env && npm install && node index.js"
+
+  mindcode-mongo:
+    container_name: mindcode-mongo
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongodb:/data/db
+  
+  mindcode-mysql:
+    image: mysql
+    container_name: mindcode-mysql
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: mindcode
+    volumes:
+      - mindcode-mysql:/var/lib/mysql:rw
+
+volumes:
+  mindcode-mongodb:
+  mindcode-mysql:

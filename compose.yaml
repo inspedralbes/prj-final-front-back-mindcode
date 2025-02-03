@@ -1,6 +1,5 @@
 services:
-  mindcode-back:
-    # image: "node:23-alpine3.20"
+  mindcode-back: 
     build: 
       dockerfile: ./back/develop.Dockerfile
       context: .
