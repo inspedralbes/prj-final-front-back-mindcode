@@ -1,8 +1,12 @@
 // Connection between Back Node and DB mongodb Atlas.
+//usr: a24bermirpre
+//pwd: 12345
+//Path: mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
 
 const mongoose = require('mongoose');
 
-const mongoPath = 'mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Cambia <db_password> por tu contraseña real
+const mongoPath = 'mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
 
 const connectDB = async () => {
     try {
