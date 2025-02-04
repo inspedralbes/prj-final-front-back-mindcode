@@ -49,7 +49,7 @@ services:
       - mindcode-mongo
 
   mindcode-mysql:
-    image: mysql
+    image: mysql:9.2
     restart: always
     environment:
       MYSQL_DATABASE: mindcode
