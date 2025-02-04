@@ -165,7 +165,17 @@ export async function sendMessage(body) {
         throw error;
       }
     };
-    
+
+    export const  deleteLanguage = async (idlanguage) => {
+      const response = await fetch(`${URL}/api/language/${idlanguage}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    const data = await response.json()
+    return data;
+  }
 
     export async function getStudents(class_id) {
       try {

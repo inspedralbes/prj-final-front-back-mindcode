@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 const port = process.env.PORT;
-app.use(cors());
+
 // Parse JSON bodies for this app
 app.use(express.json());
 
@@ -322,6 +322,35 @@ app.get('/api/class/languages', async (req, res) => {
         res.status(200).json({ count: language_info.length, languages: language_info });
     } catch (error) {
         console.error('Error fetching languages:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.delete('/api/language', async (req, res) => {
+    const { idlanguage } = req.body; 
+
+    if (!idlanguage) {
+        return res.status(400).json({ error: 'Idlanguage is required' });
+    }
+
+    try {
+        const connection = await createConnection();
+        
+        const [result] = await connection.execute(
+            `DELETE FROM LANGUAGES WHERE idlanguage = ?`,
+            [idlanguage]
+        );
+
+        await connection.end();
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Language not found' });
+        }
+
+        res.status(200).json({ message: 'Language deleted successfully' });
+
+    } catch (error) {
+        console.error('Error in attempt to delete language', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

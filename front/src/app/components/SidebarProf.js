@@ -79,7 +79,7 @@ const SidebarProf = ({ classId }) => {
                     value={newLanguage}
                     onChange={(e) => setNewLanguage(e.target.value)}
                     className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
-                    placeholder="Lllenguatge"
+                    placeholder="Llenguatge"
                   />
                   <button
                     onClick={handleAddLanguage}

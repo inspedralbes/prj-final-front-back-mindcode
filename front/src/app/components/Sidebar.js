@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { getLanguage } from "services/communicationManager.js";
+import { useAuthStore } from "store/authStore";
 
 const Sidebar = ({ class_id }) => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
-
+  const {user_id ,role} = useAuthStore();
+ 
   useEffect(() => {
     async function fetchLanguages() {
+      if (!class_id || !user_id) return; 
+
       try {
-        if (!class_id) return; 
         const data = await getLanguage(class_id);
         setLanguages(data);
       } catch (error) {
