@@ -38,14 +38,14 @@ jobs:
           echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
 
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "rm -f ./mindcode/docker-compose.yml"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "rm -f ./mindcode/compose.production.yaml"
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_USER=${{ secrets.MYSQL_USER }}' > ./mindcode/.env"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}' >> ./mindcode/.env"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}' >> ./mindcode/.env"
 
 
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./docker-compose.prod.yml ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/docker-compose.yml
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./compose.production.yaml ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/compose.yaml
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   # ------------------------------------------------------
