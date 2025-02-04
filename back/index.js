@@ -4,21 +4,20 @@ import mysql from 'mysql2/promise';
 import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
+import cors from 'cors';
 
-const serviceaccount = JSON.parse(fs.readFileSync('./firebaseAdmin/serviceaccount.json', 'utf-8'));
-admin.initializeApp({
-   credential: admin.credential.cert(serviceaccount)
- });
-
-
-
-
- // Load environment variables from .env file
 dotenv.config();
+
+const serviceaccount = JSON.parse(fs.readFileSync('./serviceaccount.json', 'utf-8'));
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceaccount)
+});
 
 
 // Create an Express application
 const app = express();
+app.use(cors());
 const port = process.env.PORT;
 
 
@@ -34,12 +33,8 @@ const dbConfig = {
    database: process.env.DB_DATABASE
 };
 
-
 // Unique ID generator used in class code generation
 const uid = new ShortUniqueId({ length: 10 });
-
-
-
 
 async function createConnection() {
    try {
@@ -121,7 +116,6 @@ app.post('/api/class', async (req, res) => {
        res.status(500).json({ error: 'Internal server error' });
    }
 });
-
 
 app.post('/api/class/enroll', async (req, res) => {
    const { class_code, user_id } = req.body;
@@ -248,16 +242,22 @@ function getClassInfo(class_id) {
 app.post('/api/auth/google', async (req, res) => {
    const { uid, name, gmail } = req.body;
 
+   if(!gmail.endsWith('@inspedralbes.cat')) {
+        return res.status(400).json({ error: 'Incorrect Credentials' });
+   }
 
-   try {
+   const ltterNum = /^[a-zA-Z]\d/;
+   const ltterLtter = /^[a-zA-Z]{2}/;
+
+   if (!ltterNum.test(gmail) || !ltterLtter.test(gmail)) {
+    try {
        const connection = await mysql.createConnection(dbConfig);
-       const [rows] = await connection.execute('SELECT * FROM user WHERE google_id = ?', [uid]);
-
+       const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
 
        if (rows.length === 0) {
            await connection.execute(
-               'INSERT INTO user (google_id, name, gmail) VALUES (?, ?, ?)',
-               [uid, name, gmail]
+               'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
+               [uid, name, gmail, 0]
            );
            console.log('Nuevo usuario creado en la base de datos');
        } else {
@@ -268,14 +268,14 @@ app.post('/api/auth/google', async (req, res) => {
        await connection.end();
 
 
-       res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, google_id: uid } });
+       res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
 
-
-   } catch (error) {
+       
+   }catch (error) {
        console.error('Error al verificar el UID de Google:', error);
        res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
    }
-});
+}});
 
 
 app.get('/', (req, res) => {

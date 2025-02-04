@@ -1,16 +1,18 @@
 import {initializeApp} from 'firebase/app';
 import { GoogleAuthProvider, signInWithPopup, getAuth, signInWithRedirect } from 'firebase/auth';
 
+const URL = process.env.NEXT_PUBLIC_URL;
+const privkey = process.env.NEXT_PUBLIC_API_KEY;
 
 const firebaseConfig = {
-   apiKey: "AIzaSyA4GiUbRRbtfklbB8SeHsyHJ1HUf9BwE1Y",
-   authDomain: "mind-code.firebaseapp.com",
-   projectId: "mind-code",
-   storageBucket: "mind-code.firebasestorage.app",
-   messagingSenderId: "338394892025",
-   appId: "1:338394892025:web:ac7d9832b3a251246b4428",
-   measurementId: "G-0XXH3XYDMX"
- };
+    apiKey: privkey,
+    authDomain: "mind-code1.firebaseapp.com",
+    projectId: "mind-code1",
+    storageBucket: "mind-code1.firebasestorage.app",
+    messagingSenderId: "170796916073",
+    appId: "1:170796916073:web:bf3f51e731f4db905ff1f8",
+    measurementId: "G-HP3CWCKL3F"
+  };
 
 
 const app = initializeApp(firebaseConfig);
@@ -24,14 +26,18 @@ export const googleLogin = async () => {
      const result = await signInWithPopup(auth, provider);
      const user = result.user;
 
-
      const uid = user.uid;
      const name = user.displayName;
      const gmail = user.email;
+    if(!gmail.endsWith('@inspedralbes.cat')){
+        console.log("Incorrect Credentials");
+        return googleLogin;
+     }
+    else{
      localStorage.setItem('user_id', uid);
      localStorage.setItem('user_name', name);
      localStorage.setItem('user_email', gmail);
-     const response = await fetch('/api/auth/google', {
+     const response = await fetch(`${URL}/api/auth/google`, {
          method: 'POST',
          headers: {
              'Content-Type': 'application/json',
@@ -39,10 +45,12 @@ export const googleLogin = async () => {
          body: JSON.stringify({ uid, name, gmail })
      });
 
-
-     const data = await response.json();
-     console.log('Respuesta del servidor:', data);
- } catch (error) {
+     const textResponse = await response.text();
+     console.log(textResponse);
+     
+     const data = JSON.parse(textResponse);
+     console.log(data);
+ }} catch (error) {
      console.error('Error al iniciar sesión con Google:', error);
  }
 };
