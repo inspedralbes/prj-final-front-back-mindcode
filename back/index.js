@@ -104,15 +104,13 @@ app.post("/api/class", async (req, res) => {
     );
     await connection.end();
 
-    res
-      .status(201)
-      .json({
-        class_id: result.insertId,
-        name,
-        teacher_id,
-        language,
-        class_code,
-      });
+    res.status(201).json({
+      class_id: result.insertId,
+      name,
+      teacher_id,
+      language,
+      class_code,
+    });
   } catch (error) {
     console.error("Error creating class:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -156,11 +154,9 @@ app.post("/api/class/enroll", async (req, res) => {
         await connection.end();
 
         if (result.affectedRows === 0) {
-          return res
-            .status(400)
-            .json({
-              error: `Student could not be added to class, student doesn't exist`,
-            });
+          return res.status(400).json({
+            error: `Student could not be added to class, student doesn't exist`,
+          });
         } else {
           const class_details = {
             name,
@@ -327,42 +323,73 @@ app.post("/api/auth/google", async (req, res) => {
     return res.status(400).json({ error: "Incorrect Credentials" });
   }
 
-  
-  const ltterNum = /^[a-zA-Z]\d/;
+//   const ltterNum = /^[a-zA-Z]\d/;
   const ltterLtter = /^[a-zA-Z]{2}/;
 
-  let teacher = 0
+  let teacher = 0;
 
   if (ltterLtter.test(gmail)) {
     teacher = 1;
   }
-    
-    try {
-      const connection = await mysql.createConnection(dbConfig);
-      const [rows] = await connection.execute(
-        "SELECT * FROM USER WHERE googleId = ?",
-        [uid]
-      );
 
-      if (rows.length === 0) {
-        await connection.execute(
-          "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
-          [uid, name, gmail, teacher]
-        );
-        console.log("Nuevo usuario creado en la base de datos");
-      } else {
-        console.log("El usuario ya existe en la base de datos");
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute(
+      "SELECT * FROM USER WHERE googleId = ?",
+      [uid]
+    );
+
+    let userId;
+
+    if (rows.length === 0) {
+      const[result] = await connection.execute(
+        "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
+        [uid, name, gmail, teacher]
+      );
+      userId = result.insertId;
+
+      console.log("New user created in the database");
+    } else {
+      userId = rows[0].id;
+      console.log("User already exists in the database");
+    }
+
+    const [classRows] = await connection.execute(
+        "SELECT c.idclass, c.name, c.teacher_id, c.language, c.code " +
+        "FROM CLASS c " +
+        "JOIN USER u ON c.idclass = u.class " +
+        "WHERE u.id = ?",
+        [userId]
+      );
+  
+      let classInfo = null;
+      if (classRows.length > 0) {
+        const classData = classRows[0];
+        classInfo = {
+          class_id: classData.idclass,
+          name: classData.name,
+          teacher_id: classData.teacher_id,
+          language: classData.language,
+          class_code: classData.code
+        };
       }
 
-      await connection.end();
-      res.json({
-        message: "Usuario autenticado correctamente",
-        user: { name, gmail, googleId: uid },
-      });
-    } catch (error) {
-      console.error("Error al verificar el UID de Google:", error);
-      res.status(400).json({ error: "No se pudo verificar el UID de Google" });
-    }
+    await connection.end();
+
+    res.json({
+      message: "User authenticated correctly",
+      token: null, //jwt.sign()
+      id: userId,
+      name,
+      gmail,
+      teacher,
+      class_id: classInfo ? classInfo.class_id : null,
+      class_info: classInfo,
+    });
+  } catch (error) {
+    console.error("Authenticated failed:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/api/language", async (req, res) => {

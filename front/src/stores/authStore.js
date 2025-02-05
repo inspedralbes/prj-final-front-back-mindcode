@@ -6,8 +6,9 @@ const useAuthStore = create(
     (set) => ({
       userId: null, 
       role: null, 
-      setUser: (userId, role) => set({ userId, role }),
-      logout: () => set({ userId: null, role: null }),
+      gmail:null,
+      setUser: (userId, role,email) => set({ userId, role, gmail }),
+      logout: () => set({ userId: null, role: null, gmail: null }),
     }),
     {
       name: "auth-storage", 
