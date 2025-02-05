@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { FaPaperPlane, FaUserCircle } from "react-icons/fa";
 import { RiRobot3Line } from "react-icons/ri";
-import { sendMessage, chargeMessages } from "services/communicationManager"; // Asegúrate de importar sendMessage
-import MarkdownView from 'react-showdown';
+import { sendMessage, chargeMessages } from "services/communicationManager"; 
 
 const UserChat = () => {
   const [message, setMessage] = useState("");
