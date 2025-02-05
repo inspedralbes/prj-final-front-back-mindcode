@@ -68,6 +68,11 @@ jobs:
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./db ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/db
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
+
+          # rm -rf ./node_modules
+          # npm install
+          # npm run build
+
   FRONT-DEPLOY:
     needs: [FILL-DOCKER-COMPOSE]
     runs-on: ubuntu-latest
@@ -82,13 +87,8 @@ jobs:
           cd ${{ github.workspace }}
           cd front
           touch .env
-          # npm install
 
           echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
-
-          # npm run build
-
-          # rm -rf ./node_modules
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
