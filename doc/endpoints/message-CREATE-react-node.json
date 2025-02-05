@@ -12,7 +12,6 @@
         "201": {
             "description": "Message created successfully",
             "body": {
-                "message_id": "string",
                 "message": "string"
             }
         },

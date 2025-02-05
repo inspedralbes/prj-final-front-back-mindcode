@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `class` (
   `idclass` int(11) NOT NULL,
+   `code` VARCHAR(255),  NOT NULL, 
   `name` varchar(255) DEFAULT NULL,
   `teacher_id` int(11) DEFAULT NULL,
   `language` text DEFAULT NULL
@@ -38,10 +39,10 @@ CREATE TABLE `class` (
 -- Bolcament de dades per a la taula `class`
 --
 
-INSERT INTO `class` (`idclass`, `name`, `teacher_id`, `language`) VALUES
-(1, 'Introduction to Python', 1, 'Python'),
-(2, 'JavaScript for Web Development', 2, 'JavaScript'),
-(3, 'Advanced Java Concepts', 2, 'Java');
+INSERT INTO `class` (`idclass`,`code`, `name`, `teacher_id`, `language`) VALUES
+(1, 'PY101','Introduction to Python', 1, 'Python'),
+(2,  'JS201','JavaScript for Web Development', 2, 'JavaScript'),
+(3, 'JAVA301','Advanced Java Concepts', 2, 'Java');
 
 -- --------------------------------------------------------
 

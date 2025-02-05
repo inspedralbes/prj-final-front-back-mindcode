@@ -1,13 +1,13 @@
 INSERT INTO CLASS (idclass, code, name, teacher_id, language) VALUES
-(1, 'PY101', 'Introduction to Python', '1', 'Python'),
-(2, 'JS201', 'JavaScript for Web Development', '2', 'JavaScript'),
-(3, 'JAVA301', 'Advanced Java Concepts', '2', 'Java');
+(1, 'PY101', 'Introduction to Python', '[1]', '["Python"]'),
+(2, 'JS201', 'JavaScript for Web Development', '[2]', '["Javascript"]'),
+(3, 'JAVA301', 'Advanced Java Concepts', '[2]', '["PHP"]');
 
 INSERT INTO USER (id, name, gmail, teacher, language, googleId, class) VALUES
-(1, 'Alice Johnson', 'alice.johnson@gmail.com', TRUE, 'Python', NULL, 1),
-(2, 'Bob Smith', 'bob.smith@gmail.com', TRUE, 'JavaScript', NULL, 2),
-(3, 'Charlie Brown', 'charlie.brown@gmail.com', FALSE, 'Java', NULL, 3),
-(4, 'Diana Lee', 'diana.lee@gmail.com', FALSE, 'Python', NULL, NULL);
+(1, 'Alice Johnson', 'alice.johnson@gmail.com', TRUE, '["Python"]', NULL, 1),
+(2, 'Bob Smith', 'bob.smith@gmail.com', TRUE, '["Javascript"]', NULL, 2),
+(3, 'Charlie Brown', 'charlie.brown@gmail.com', FALSE, '["Java"]', NULL, 3),
+(4, 'Diana Lee', 'diana.lee@gmail.com', FALSE, '["Python"]', NULL, NULL);
 
 INSERT INTO LANGUAGE (idlanguage, name, system_prompt) VALUES
 (1, 'Python', 'General system prompt for Python'),

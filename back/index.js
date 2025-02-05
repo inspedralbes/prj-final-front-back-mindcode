@@ -33,6 +33,8 @@ const dbConfig = {
    database: process.env.DB_DATABASE
 };
 
+const AIHOST = process.env.AIHOST
+
 // Unique ID generator used in class code generation
 const uid = new ShortUniqueId({ length: 10 });
 
@@ -144,8 +146,9 @@ app.post('/api/class/enroll', async (req, res) => {
            try {
 
 
-               const { name, language_info, teacher_info, classmate_info } = await getClassInfo(class_id);
+                const { name, language_info, teacher_info, classmate_info } = await getClassInfo(class_id);
 
+                console.log("No es el getClassInfo")
 
                const connection = await createConnection();
                const [result] = await connection.execute(
@@ -174,6 +177,52 @@ app.post('/api/class/enroll', async (req, res) => {
    }
 });
 
+app.post('/message/create', async (req, res) => {
+    const { message } = req.body;
+
+
+    console.log(message);
+
+
+    // Validación del mensaje
+    if (!message || typeof message !== 'string' || message.trim() === '') {
+        return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
+    }
+
+    try {
+        const aiResponse = await sendToAI(message);
+
+        const returnMessage = aiResponse.content;
+
+        // Extract the content within <think> tags
+        const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
+        
+        let restOfContent = "Sorry, something went wrong. Please try again.";
+
+        if (thinkTagContent && thinkTagContent[1]) {
+            const extractedContent = thinkTagContent[1];
+            console.log("Extracted Content: ", extractedContent);
+
+            restOfContent = returnMessage.replace(thinkTagContent[0], '').trim();
+            console.log("Rest of Content: ", restOfContent);
+        } else {
+            console.log("No <think> tag found in the response.");
+        }
+
+        res.status(200).json(restOfContent);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+
+        // Manejo de errores específicos
+        // if (error.message.includes('La IA respondió con un error')) {
+        //     res.status(502).json({ error: 'Error en la comunicación con la IA: ' + error.message });
+        // } else if (error.message.includes('No se recibió respuesta de la IA')) {
+        //     res.status(504).json({ error: 'La IA no está disponible en este momento.' });
+        // } else {
+        //     res.status(500).json({ error: 'Hubo un problema al procesar la solicitud.' });
+        // }
+    }
+});
 
 function getClassInfo(class_id) {
    return new Promise(async (resolve, reject) => {
@@ -209,26 +258,23 @@ function getClassInfo(class_id) {
                console.log("ID professors: ", parsed_teacher_id);
 
 
-               const teacher_info = await Promise.all(parsed_teacher_id.map(async (id) => {
-                   const connection = await createConnection();
-                   const [teacher] = await connection.execute(
-                       'SELECT name FROM USER WHERE id = ?',
-                       [id]
-                   );
-                   await connection.end();
+                const teacher_info = await Promise.all(parsed_teacher_id.map(async (id) => {
+                        const connection = await createConnection();
+                        const [teacher] = await connection.execute(
+                            'SELECT name FROM USER WHERE id = ?',
+                            [id]
+                        );
+                        await connection.end();
 
+                        console.log("Teacher info after SELECT: ", teacher[0]);
 
-                   console.log("Teacher info after SELECT: ", teacher[0]);
-
-
-                   return { id, name: teacher[0].name };
-               }));
+                        return { id, name: teacher[0].name };
+                    }));
 
 
 
 
-              const language_info = JSON.parse(language);
-
+                const language_info = JSON.parse(language);
 
                resolve({ class_id, name, language_info, teacher_info, classmate_info });
            }
@@ -237,6 +283,35 @@ function getClassInfo(class_id) {
        }
    });
 }
+
+const sendToAI = async (message) => {
+    console.log("sending message");
+    const response = await fetch(`http://${AIHOST}:4567`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userPrompt: message })
+    });
+
+    console.log("answer recieved");
+
+    if (!response.ok) {
+        throw new Error('La IA respondió con un error: ' + response.statusText);
+    }
+
+    const aiResponse = await response.json();
+
+    if (!aiResponse) {
+        throw new Error('No se recibió respuesta de la IA');
+    }
+
+    console.log(aiResponse);
+
+    console.log("answer sent back");
+
+    return aiResponse;
+};
 
 
 app.post('/api/auth/google', async (req, res) => {
