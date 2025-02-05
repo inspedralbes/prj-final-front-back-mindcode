@@ -5,7 +5,7 @@ import StPage from "../pages/StPage";
 import Login from "../pages/Login";
 import JoinClass from "../pages/JoinClass";
 import CreateClass from "../pages/CreateClass";
-
+import FormClass from "../pages/form";
 
 const Page = () => {
   const [currentPage, setCurrentPage] = useState('login');
@@ -15,9 +15,11 @@ const Page = () => {
       case 'login':
         return <Login />;
       case 'stpage':
-        return <StPage />;
+        return <StPage />;    
       case 'joinclass':
         return <JoinClass />;
+        case 'formclass':
+          return <FormClass />;
       case 'createclass':
         return <CreateClass />;
       default:
@@ -48,6 +50,12 @@ const Page = () => {
           onClick={() => setCurrentPage('joinclass')}
           className="px-4 py-2 bg-gray-500 text-white rounded">
           Join Class
+        </button>
+
+        <button
+          onClick={() => setCurrentPage('formclass')}
+          className="px-4 py-2 bg-gray-500 text-white rounded">
+          Form Class
         </button>
 
         <button
