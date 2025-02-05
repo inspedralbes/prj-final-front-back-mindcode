@@ -52,7 +52,7 @@ services:
       ME_CONFIG_BASICAUTH: false
     depends_on:
       - mindcode-mongo
-  
+
   mindcode-mysql:
     image: mysql:9.2
     container_name: mindcode-mysql
@@ -65,7 +65,9 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: mindcode
     volumes:
-      - mindcode-mysql-db:/var/lib/mysql:rw
+      - mindcode-mysql-db:/var/lib/mysql:rw 
+      - ./db/create.sql:/docker-entrypoint-initdb.d/create.sql
+      - ./db/inserts.sql:/docker-entrypoint-initdb.d/inserts.sql
 
   mindcode-adminer:
     image: adminer:4.8.1-standalone
