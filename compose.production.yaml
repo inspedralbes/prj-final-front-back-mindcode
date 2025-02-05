@@ -74,5 +74,5 @@ services:
       - mindcode-mysql
 
 volumes:
-  mindcode-mongodb:
+  mindcode-mongo:
   mindcode-mysql:
