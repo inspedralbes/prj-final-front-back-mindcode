@@ -43,12 +43,48 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_USER=${{ secrets.MYSQL_USER }}' > ./mindcode/.env"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}' >> ./mindcode/.env"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}' >> ./mindcode/.env"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}' >> ./mindcode/.env"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}' >> ./mindcode/.env"
+
 
 
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./compose.production.yaml ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/compose.yaml
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   # ------------------------------------------------------
+
+  FRONT-DEPLOY:
+    needs: [FILL-DOCKER-COMPOSE]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining repository code
+        uses: actions/checkout@v4
+
+      - name: Back Deploy
+        run: |
+          echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
+          chmod 600 ~/prod_key.pem
+          cd ${{ github.workspace }}
+          cd back
+          touch .env
+          npm install
+
+          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
+
+
+          npm run build
+
+          rm -rf ./node_modules
+
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/back ] 
+                                                                                                                                              then
+                                                                                                                                                sudo rm -r ./mindcode/back
+                                                                                                                                              else
+                                                                                                                                                echo 'No existe la carpeta back'
+                                                                                                                                              fi"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
+      - run: echo "🍏 This job's status is ${{ job.status }}."
 
   BACK-DEPLOY:
     needs: [FILL-DOCKER-COMPOSE]
@@ -62,23 +98,22 @@ jobs:
           echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
           cd ${{ github.workspace }}
-          cd front
+          cd back
           touch .env
-          npm install
 
-          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
+          echo "PORT=${{ secrets.BACK_PORT }}" >> .env
+          echo "DB_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+          echo "DB_USER=${{ secrets.MYSQL_ROOT_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env          
+          echo "AI_HOST=${{ secrets.AI_HOST }}" >> .env
 
-
-          npm run build
-
-          rm -rf ./node_modules
-
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/back ] 
                                                                                                                                               then
-                                                                                                                                                sudo rm -r ./mindcode/front
+                                                                                                                                                sudo rm -r ./mindcode/back
                                                                                                                                               else
-                                                                                                                                                echo 'No existe la carpeta front'
+                                                                                                                                                echo 'No existe la carpeta back'
                                                                                                                                               fi"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/front"
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
       - run: echo "🍏 This job's status is ${{ job.status }}."
