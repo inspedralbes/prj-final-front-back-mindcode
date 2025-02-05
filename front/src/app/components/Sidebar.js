@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getLanguage } from "services/communicationManager.js";
-import { useAuthStore } from "store/authStore";
+import { useAuthStore } from "stores/authStore.js";
 
 const Sidebar = ({ class_id }) => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
