@@ -33,9 +33,9 @@ export const googleLogin = async () => {
         console.log("Incorrect Credentials");
      }
     else{
-     localStorage.setItem('user_id', uid);
-     localStorage.setItem('user_name', name);
-     localStorage.setItem('user_email', gmail);
+    //  localStorage.setItem('user_id', uid);
+    //  localStorage.setItem('user_name', name);
+    //  localStorage.setItem('user_email', gmail);
      const response = await fetch(`${URL}/api/auth/google`, {
          method: 'POST',
          headers: {

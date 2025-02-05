@@ -1,0 +1,40 @@
+{
+    "endpoint": "/api/auth/google",
+    "method": "POST",
+    "description": "Login with google",
+    "request": {
+        "contentType": "application/json",
+        "body": {
+            "uid": "string",
+            "name": "string",
+            "gmail": "string"
+        }
+    },
+    "response": {
+        "200": {
+            "description": "User login successful",
+            "content": {
+                "token": "string",
+                "id": "string",
+                "name": "string",
+                "gmail": "string",
+                "teacher": "integer",
+                "class_id": "integer",
+                "class_info": {
+                    "class_id": "integer",
+                    "name": "string",
+                    "teacher_id": "string",
+                    "language": "string",
+                    "class_code": "string"
+                }
+            }
+            
+        },
+        "400": {
+            "description": "Invalid input"
+        },
+        "404": {
+            "description": "Class not found"
+        }
+    }
+}
