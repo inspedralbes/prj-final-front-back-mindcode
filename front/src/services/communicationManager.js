@@ -1,5 +1,28 @@
 const URL = process.env.NEXT_PUBLIC_URL;
-  //crear classe
+
+export async function loginGoogle(uid,name,gmail){
+  if(!uid | !name | !gmail){
+    throw new Error('Uid,name and gmail are required');
+  }
+  try{
+    const response = await fetch(`${URL}/api/auth/google`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid, name, gmail })
+  });
+
+  const textResponse = await response.text();
+  console.log(textResponse);
+  
+  const data = JSON.parse(textResponse);
+  console.log(data);
+  }catch(error){
+    console.error("Communication Manager error:", error);
+      throw error;
+  }
+};
 
 export async function createClass(name, teacher_id) {
     try {
@@ -24,12 +47,11 @@ export async function createClass(name, teacher_id) {
       console.log(data);
       return data;
     } catch (error) {
-      console.error("Error en Communication Manager:", error);
+      console.error("Communication Manager error:", error);
       throw error;
     }
   };
 
-    //unirse a clase
 
   export async function joinClass(class_code, user_id) {
     try {
@@ -62,9 +84,6 @@ export async function createClass(name, teacher_id) {
         throw error;
     }
 }
-
-
-
 
 export async function chargeMessage(userId) {
     try {

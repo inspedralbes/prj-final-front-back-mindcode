@@ -18,7 +18,7 @@ admin.initializeApp({
 
 // Create an Express application
 const app = express();
-app.use(cors());
+app.use(cors('*'));
 const port = process.env.PORT;
 
 // Parse JSON bodies for this app
