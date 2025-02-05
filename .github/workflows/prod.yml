@@ -82,13 +82,13 @@ jobs:
           cd ${{ github.workspace }}
           cd front
           touch .env
-          npm install
+          # npm install
 
           echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
 
-          npm run build
+          # npm run build
 
-          rm -rf ./node_modules
+          # rm -rf ./node_modules
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
@@ -97,8 +97,9 @@ jobs:
                                                                                                                                                 echo 'No existe la carpeta front'
                                                                                                                                               fi"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/front"
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -rp . ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          - run: echo "🍏 This job's status is ${{ job.status }}."
 
   BACK-DEPLOY:
     needs: [FILL-DOCKER-COMPOSE]
@@ -130,10 +131,12 @@ jobs:
                                                                                                                                               fi"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   START-DOCKER:
-    needs: [FRONT-DEPLOY, BACK-DEPLOY]
+    needs: [FRONT-DEPLOY, BACK-DEPLOY, COPY-DB-INIT]
     runs-on: ubuntu-latest
     steps:
       - name: Start Docker
