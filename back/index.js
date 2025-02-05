@@ -249,7 +249,7 @@ app.post('/api/auth/google', async (req, res) => {
    const ltterNum = /^[a-zA-Z]\d/;
    const ltterLtter = /^[a-zA-Z]{2}/;
 
-   if (!ltterNum.test(gmail) || !ltterLtter.test(gmail)) {
+   if (!ltterLtter.test(gmail)) {
     try {
        const connection = await mysql.createConnection(dbConfig);
        const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
@@ -264,18 +264,39 @@ app.post('/api/auth/google', async (req, res) => {
            console.log('El usuario ya existe en la base de datos');
        }
 
-
        await connection.end();
-
-
        res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
-
-       
    }catch (error) {
        console.error('Error al verificar el UID de Google:', error);
        res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
    }
-}});
+}
+else if (!ltterNum.test(gmail)){
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
+ 
+        if (rows.length === 0) {
+            await connection.execute(
+                'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
+                [uid, name, gmail, 1]
+            );
+            console.log('Nuevo usuario creado en la base de datos');
+        } else {
+            console.log('El usuario ya existe en la base de datos');
+        }
+ 
+        await connection.end();
+        res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
+    }catch (error) {
+        console.error('Error al verificar el UID de Google:', error);
+        res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
+    }
+}
+else{
+    console.log("Incorrect Credentials");
+}
+});
 
 
 app.get('/', (req, res) => {

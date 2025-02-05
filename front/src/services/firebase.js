@@ -25,13 +25,12 @@ export const googleLogin = async () => {
  try {
      const result = await signInWithPopup(auth, provider);
      const user = result.user;
-
      const uid = user.uid;
      const name = user.displayName;
      const gmail = user.email;
+
     if(!gmail.endsWith('@inspedralbes.cat')){
         console.log("Incorrect Credentials");
-        return googleLogin;
      }
     else{
      localStorage.setItem('user_id', uid);
