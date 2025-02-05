@@ -24,6 +24,9 @@ services:
       - /tmp
     restart: always
     command: sh -c "cp .env.prod .env && npm install && node index.js"
+    links:
+      - mindcode-mysql
+      - mindcode-mongo
 
   mindcode-mongo:
     container_name: mindcode-mongo
@@ -35,7 +38,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     volumes:
-      - mongodb:/data/db
+      - mindcode-mongo-db:/data/db
 
   mindcode-mongo-express:
     image: mongo-express
@@ -62,7 +65,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: mindcode
     volumes:
-      - mindcode-mysql:/var/lib/mysql:rw
+      - mindcode-mysql-db:/var/lib/mysql:rw
 
   mindcode-adminer:
     image: adminer:4.8.1-standalone
@@ -74,5 +77,5 @@ services:
       - mindcode-mysql
 
 volumes:
-  mindcode-mongo:
-  mindcode-mysql:
+  mindcode-mongo-db:
+  mindcode-mysql-db:
