@@ -23,7 +23,7 @@ services:
     tmpfs:
       - /tmp
     restart: always
-    command: sh -c "cp .env.prod .env && npm install && node index.js"
+    command: sh -c "npm install && node index.js"
     links:
       - mindcode-mysql
       - mindcode-mongo
