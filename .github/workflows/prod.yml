@@ -60,30 +60,29 @@ jobs:
       - name: Obtaining repository code
         uses: actions/checkout@v4
 
-      - name: Back Deploy
+      - name: Front Deploy
         run: |
           echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
           cd ${{ github.workspace }}
-          cd back
+          cd front
           touch .env
           npm install
 
           echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
 
-
           npm run build
 
           rm -rf ./node_modules
 
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/back ] 
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
-                                                                                                                                                sudo rm -r ./mindcode/back
+                                                                                                                                                sudo rm -r ./mindcode/front
                                                                                                                                               else
-                                                                                                                                                echo 'No existe la carpeta back'
+                                                                                                                                                echo 'No existe la carpeta front'
                                                                                                                                               fi"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/front"
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   BACK-DEPLOY:
@@ -93,7 +92,7 @@ jobs:
       - name: Obtaining repository code
         uses: actions/checkout@v4
 
-      - name: Front Deploy
+      - name: Back Deploy
         run: |
           echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
