@@ -5,6 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
+import {login, verifyToken, verifyTokenMiddleware } from './tokens.js';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ async function createConnection() {
 }
 
 
+
 async function testConnection() {
    const connection = await createConnection();
    try {
@@ -66,8 +68,7 @@ async function testConnection() {
 
 testConnection();
 
-
-app.post('/api/class', async (req, res) => {
+app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
    const { name, teacher_id } = req.body;
 
 
@@ -119,7 +120,7 @@ app.post('/api/class', async (req, res) => {
    }
 });
 
-app.post('/api/class/enroll', async (req, res) => {
+app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
    const { class_code, user_id } = req.body;
 
 
@@ -177,7 +178,7 @@ app.post('/api/class/enroll', async (req, res) => {
    }
 });
 
-app.post('/message/create', async (req, res) => {
+app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
     const { message } = req.body;
 
 
@@ -313,65 +314,63 @@ const sendToAI = async (message) => {
     return aiResponse;
 };
 
+app.post('/api/login', (req, res) => {
+    const db = connectToDatabase();
+    login(db, SECRET_KEY, req, res);
+  });
 
-app.post('/api/auth/google', async (req, res) => {
-   const { uid, name, gmail } = req.body;
+app.post('/api/auth/google', verifyTokenMiddleware, async (req, res) => {
+    const { uid, name, gmail } = req.body;
 
-   if(!gmail.endsWith('@inspedralbes.cat')) {
+    if (!gmail.endsWith('@inspedralbes.cat')) {
         return res.status(400).json({ error: 'Incorrect Credentials' });
-   }
+    }
 
-   const ltterNum = /^[a-zA-Z]\d/;
-   const ltterLtter = /^[a-zA-Z]{2}/;
+    const ltterNum = /^[a-zA-Z]\d/;
+    let teacher = 1;
 
-   if (!ltterLtter.test(gmail)) {
-    try {
-       const connection = await mysql.createConnection(dbConfig);
-       const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
+    if (ltterNum.test(gmail)) {
+        teacher = 0;
+    }
 
-       if (rows.length === 0) {
-           await connection.execute(
-               'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
-               [uid, name, gmail, 0]
-           );
-           console.log('Nuevo usuario creado en la base de datos');
-       } else {
-           console.log('El usuario ya existe en la base de datos');
-       }
-
-       await connection.end();
-       res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
-   }catch (error) {
-       console.error('Error al verificar el UID de Google:', error);
-       res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
-   }
-}
-else if (!ltterNum.test(gmail)){
     try {
         const connection = await mysql.createConnection(dbConfig);
         const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
- 
+
         if (rows.length === 0) {
             await connection.execute(
                 'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
-                [uid, name, gmail, 1]
+                [uid, name, gmail, teacher]
             );
             console.log('Nuevo usuario creado en la base de datos');
         } else {
             console.log('El usuario ya existe en la base de datos');
         }
- 
+
         await connection.end();
-        res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
-    }catch (error) {
+
+        const response = await fetch(`${URL}/api/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gmail, name, googleId: uid }) 
+        });
+
+        const loginData = await response.json();
+        
+        if (loginData.token) {
+            res.json({ message: 'Usuario autenticado correctamente', token: loginData.token });
+        } else {
+            res.status(400).json({ error: 'Error al generar el token JWT' });
+        }
+        
+    } catch (error) {
         console.error('Error al verificar el UID de Google:', error);
         res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
     }
-}
-else{
-    console.log("Incorrect Credentials");
-}
 });
+
 
 
 app.get('/', (req, res) => {
