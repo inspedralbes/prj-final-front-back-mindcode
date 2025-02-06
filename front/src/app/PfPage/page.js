@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import Navbar from "../app/components/Navbar";
-import ContentArea from "../app/components/ContentArea";
+import Navbar from "../components/Navbar";
+import ContentArea from "../components/ContentArea";
 import SidebarProf from "app/components/SidebarProf";
 
 const Page = () => {

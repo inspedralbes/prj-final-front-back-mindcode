@@ -2,9 +2,9 @@
 "use client"; 
 
 import React from "react";
-import Sidebar from "../app/components/Sidebar";
-import Navbar from "../app/components/Navbar";
-import UserChat from "./UserChat";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
+import UserChat from "../UserChat/page";
 
 
 const Page = () => {

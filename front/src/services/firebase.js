@@ -29,10 +29,11 @@ export const googleLogin = async () => {
 
     if (!gmail.endsWith("@inspedralbes.cat")) {
       console.log("Incorrect Credentials");
-      return;
+      return null;
     }
 
-    await loginGoogle(uid, name, gmail);
+    const userData = await loginGoogle(uid, name, gmail);
+    return userData;
 
   } catch (error) {
     console.error("Error signing in with Google:", error);

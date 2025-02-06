@@ -1,8 +1,27 @@
-import React from 'react';
-import {googleLogin} from '../services/firebase';
+"use client";
 
+import React from 'react';
+import {googleLogin} from '../../services/firebase';
+import { useRouter } from 'next/navigation';
 
 const Signup = () => {
+  const router = useRouter();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const userData = await googleLogin();
+
+      if (!userData) return; 
+
+      if (userData.hasClass) {
+        router.push('/StPage'); 
+      } else {
+        router.push('/JoinClass'); 
+      }
+    } catch (error) {
+      console.error('Error en el login:', error);
+    }
+  };
  return (
    <div className="min-h-screen bg-black text-gray-900 flex justify-center">
      <div className="max-w-screen-xl m-0 sm:m-10 bg-black shadow sm:rounded-lg flex flex-row-reverse justify-center flex-1">
@@ -13,7 +32,7 @@ const Signup = () => {
            </h1>
            <div className="w-full flex-1 mt-8">
              <div className="flex flex-col items-center">
-               <button onClick={googleLogin} className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-white text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
+               <button onClick={handleGoogleLogin} className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-white text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
                  <div className="bg-white p-2 rounded-full">
                    <svg className="w-4" viewBox="0 0 533.5 544.3">
                      <path

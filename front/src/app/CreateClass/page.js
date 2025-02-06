@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import StPage from "../pages/StPage";
-import { createClass } from "../services/communicationManager"; // Import createClass function
+import StPage from "../StPage/page";
+import { createClass } from "../../services/communicationManager"; // Import createClass function
 
 const JoinClass = () => {
   const [showLogin, setShowLogin] = useState(false);

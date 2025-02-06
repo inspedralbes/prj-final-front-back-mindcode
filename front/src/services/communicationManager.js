@@ -13,17 +13,20 @@ export async function loginGoogle(uid,name,gmail){
       body: JSON.stringify({ uid, name, gmail })
   });
 
-  const textResponse = await response.text();
-  console.log(textResponse);
-  
-  const data = JSON.parse(textResponse);
-  console.log(data);
-  }catch(error){
-    console.error("Communication Manager error:", error);
-      throw error;
-  }
-};
+  const data = await response.json();
 
+    if (!data) {
+      throw new Error("Respuesta vacía del servidor");
+    }
+    return {
+      hasClass: data.class_id !== null, 
+      userData: data,
+    };
+  } catch (error) {
+    console.error("Communication Manager error:", error);
+    throw error;
+  }
+}
 export async function createClass(name, teacher_id) {
     try {
       if (!name || !teacher_id) {
