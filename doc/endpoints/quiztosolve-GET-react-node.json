@@ -14,7 +14,11 @@
             "description": "Quiz retrieved successfully",
             "body": [
                 {
-                    "questions": "string"
+                    "question": "string",
+                    "answers": [
+                        "string"
+                    ]
+
                 }
             ]
         }
