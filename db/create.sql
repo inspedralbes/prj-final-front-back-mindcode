@@ -20,20 +20,10 @@ CREATE TABLE IF NOT EXISTS USER (
 CREATE TABLE IF NOT EXISTS LANGUAGE (
     idlanguage INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    system_prompt LONGTEXT
-);
-
-CREATE TABLE IF NOT EXISTS SUBLANGUAGE (
-    id INT AUTO_INCREMENT,
-    idlanguage INT,
-    name VARCHAR(255),
-    system_prompt LONGTEXT,
-    PRIMARY KEY (id, idlanguage),
-    FOREIGN KEY (idlanguage) REFERENCES LANGUAGE(idlanguage)
+    restriction_level INT
 );
 
 CREATE TABLE IF NOT EXISTS RESTRICTION (
     idrestriction INT AUTO_INCREMENT PRIMARY KEY,
-    nivell ENUM('BEGINNER', 'INTERMEDIATE', 'ADVANCED'),
     content TEXT
 );
