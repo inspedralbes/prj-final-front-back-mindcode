@@ -5,6 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
+import { connection } from 'mongoose';
 
 dotenv.config();
 
@@ -239,7 +240,7 @@ app.post('/api/class/enroll', async (req, res) => {
                     await updateConnection.end();
 
                 } else {
-                    
+
                     const connection = await createConnection();
                     await connection.execute(
                         'UPDATE USER SET class = ? WHERE id = ?',
@@ -267,19 +268,108 @@ app.post('/api/class/enroll', async (req, res) => {
 });
 
 app.post('/message/create', async (req, res) => {
-    const { message } = req.body;
-
+    const { message, language_id, class_id, verified_user_id } = req.body;
 
     console.log(message);
-
 
     // Validación del mensaje
     if (!message || typeof message !== 'string' || message.trim() === '') {
         return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
     }
 
+    // Validación del ID de idioma
+    if (!language_id || typeof language_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de idioma es obligatorio y debe ser un número.' });
+    }
+
+    // Validación del ID de clase
+    if (!class_id || typeof class_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de clase es obligatorio y debe ser un número.' });
+    }
+
+    // Validación del ID de usuario verificado
+    if (!verified_user_id || typeof verified_user_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de usuario verificado es obligatorio y debe ser un número.' });
+    }
+
     try {
-        const aiResponse = await sendToAI(message);
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT id FROM USER WHERE id = ? AND class = ?',
+            [verified_user_id, class_id]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(401).json({ error: 'No perteneces a esta clase.' });
+        }
+
+    } catch (error) {
+        console.error('Error fetching class language:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end();
+    }
+    
+    let language;
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT language FROM CLASS WHERE idclass = ?',
+            [class_id]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Class not found' });
+        }
+
+        language = rows[0].language;
+        console.log("Language: ", language);
+    } catch (error) {
+        console.error('Error fetching class language:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end();
+    }
+
+    const parsedLanguages = JSON.parse(language);
+
+    const languageToSend = parsedLanguages.find((language) => language.id === language_id);
+
+    let restriction
+
+    if (languageToSend === undefined) {
+        return res.status(400).json({ error: 'El lenguaje del mensaje no coincide con el lenguaje de la clase.' });
+    } else {
+
+        console.log(languageToSend);
+        console.log(languageToSend.restrictionId);
+
+        try {
+            const connection = await createConnection();
+            const [rows] = await connection.execute(
+                'SELECT content FROM RESTRICTION WHERE idrestriction = ?',
+                [languageToSend.restrictionId]
+            );
+
+            if (rows.length === 0) {
+                return res.status(404).json({ error: 'Restriction not found' });
+            }
+
+            restriction = rows[0].content;
+        } catch (error) {
+
+            console.error('Error fetching restriction:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        } finally {
+            connection.end();
+        }
+    }
+
+    try {
+        const aiResponse = await sendToAI(message, language, restriction);
 
         const returnMessage = aiResponse.content;
 
@@ -428,14 +518,14 @@ function getClassInfo(class_id) {
     });
 }
 
-const sendToAI = async (message) => {
+const sendToAI = async (message, language, restriction) => {
     console.log("sending message");
     const response = await fetch(`http://${AIHOST}:4567`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userPrompt: message })
+        body: JSON.stringify({ userPrompt: message, language, restriction })
     });
 
     console.log("answer recieved");
