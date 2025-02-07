@@ -9,10 +9,10 @@ INSERT INTO USER (id, name, gmail, teacher, language, googleId, class) VALUES
 (3, 'Charlie Brown', 'charlie.brown@gmail.com', FALSE, '["Java"]', NULL, 3),
 (4, 'Diana Lee', 'diana.lee@gmail.com', FALSE, '["Python"]', NULL, NULL);
 
-INSERT INTO LANGUAGE (idlanguage, name, restriction_level) VALUES
-(1, 'Python', 3),
-(2, 'JavaScript', 2),
-(3, 'Java', 1);
+INSERT INTO LANGUAGE (idlanguage, name) VALUES
+(1, 'Python'),
+(2, 'JavaScript'),
+(3, 'Java');
 
 INSERT INTO RESTRICTION (content) VALUES
 ("Only answer questions by explaining, don't provide code"),

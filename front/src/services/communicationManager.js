@@ -131,3 +131,58 @@ export async function sendMessage(body) {
     }
 }
 
+// Languages
+
+export async function createLanguage(name) {
+  try {
+    if (!name) {
+      throw new Error('Name is required');
+    }
+
+    const response = await fetch(`${URL}/api/language`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error creating language: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
+}
+
+export async function updateLanguages(classId, languages) {
+  try {
+    if (!classId || !Array.isArray(languages)) {
+      throw new Error('classId and languages array are required');
+    }
+
+    const response = await fetch(`${URL}/api/language/class`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ classId, languages }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error updating languages: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
+}
