@@ -5,7 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
-import {login, verifyToken, verifyTokenMiddleware } from './tokens.js';
+import {login, verifyTokenMiddleware} from './tokens.js';
 
 dotenv.config();
 
@@ -66,7 +66,7 @@ async function testConnection() {
 
 testConnection();
 
-app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
+app.post('/api/class', async (req, res) => {
    const { name, teacher_id } = req.body;
 
   const language = "[]"; /* TODO: Add language array to class creation */
@@ -120,7 +120,7 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
   }
 });
 
-app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
+app.post('/api/class/enroll', async (req, res) => {
    const { class_code, user_id } = req.body;
 
 
@@ -185,7 +185,7 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
   }
 });
 
-app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
+app.post('/message/create', async (req, res) => {
     const { message } = req.body;
 
 
@@ -321,12 +321,7 @@ const sendToAI = async (message) => {
   return aiResponse;
 };
 
-app.post('/api/login', (req, res) => {
-    const db = connectToDatabase();
-    login(db, SECRET_KEY, req, res);
-  });
-
-app.post('/api/auth/google', verifyTokenMiddleware, async (req, res) => {
+app.post('/api/auth/google', async (req, res) => {
     const { uid, name, gmail } = req.body;
 
   if (!gmail.endsWith("@inspedralbes.cat")) {
@@ -385,10 +380,12 @@ app.post('/api/auth/google', verifyTokenMiddleware, async (req, res) => {
       }
 
     await connection.end();
+    const user = { id: userId };
+    const token = login(user, process.env.SECRET_KEY)
 
     res.json({
       message: "User authenticated correctly",
-      token: null, //jwt.sign()
+      token: token, 
       id: userId,
       name,
       gmail,

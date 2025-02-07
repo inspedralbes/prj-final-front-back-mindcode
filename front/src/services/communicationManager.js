@@ -14,6 +14,8 @@ export async function loginGoogle(uid,name,gmail){
   });
 
   const data = await response.json();
+  const token = data.token;
+  console.log(token)
 
     if (!data) {
       throw new Error("Respuesta vacía del servidor");
