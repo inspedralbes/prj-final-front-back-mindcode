@@ -312,6 +312,7 @@ app.post('/message/create', async (req, res) => {
     }
     
     let language;
+    let languageToSend;
 
     try {
         const connection = await createConnection();
@@ -336,7 +337,7 @@ app.post('/message/create', async (req, res) => {
 
     const parsedLanguages = JSON.parse(language);
 
-    const languageToSend = parsedLanguages.find((language) => language.id === language_id);
+    languageToSend = parsedLanguages.find((language) => language.id === language_id);
 
     let restriction
 
@@ -369,7 +370,7 @@ app.post('/message/create', async (req, res) => {
     }
 
     try {
-        const aiResponse = await sendToAI(message, language, restriction);
+        const aiResponse = await sendToAI(message, languageToSend.name, restriction);
 
         const returnMessage = aiResponse.content;
 
