@@ -129,15 +129,32 @@ export async function sendMessage(body) {
 }
 
 // obtener pregunta
-export async function fetchFormQuestions(formId) {
-  try {
-      const response = await fetch(`/api/form/questions?form_id=${formId}`, {
-          method: "GET",
-          headers: {
-              "Content-Type": "application/json"
-          }
-      });
+// export async function fetchFormQuestions(formId) {
+//   try {
+//       const response = await fetch(`/api/form/questions?form_id=${formId}`, {
+//           method: "GET",
+//           headers: {
+//               "Content-Type": "application/json"
+//           }
+//       });
       
+//       if (!response.ok) {
+//           throw new Error("Failed to fetch form questions");
+//       }
+      
+//       const data = await response.json();
+//       return data;
+//   } catch (error) {
+//       console.error("Error fetching form questions:", error);
+//       return null;
+//   }
+// }
+
+// Fetch from JSON file
+export async function fetchFormQuestions() {
+  try {
+      const response = await fetch("/formQuestions.json"); 
+
       if (!response.ok) {
           throw new Error("Failed to fetch form questions");
       }
