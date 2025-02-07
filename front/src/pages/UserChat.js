@@ -6,6 +6,7 @@ import { RiRobot3Line } from "react-icons/ri";
 import { sendMessage, chargeMessages } from "services/communicationManager"; 
 import MarkdownView from 'react-showdown';
 
+
 const UserChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
