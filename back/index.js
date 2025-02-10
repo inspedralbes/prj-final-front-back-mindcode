@@ -427,7 +427,7 @@ app.post("/api/language", async (req, res) => {
   try {
     const connection = await createConnection();
     const [result] = await connection.execute(
-      "INSERT into LANGUAGES (name) VALUES (?)",
+      "INSERT into LANGUAGE (name) VALUES (?)",
       [name]
     );
     await connection.end();
@@ -479,7 +479,7 @@ app.delete("/api/language", async (req, res) => {
     const connection = await createConnection();
 
     const [result] = await connection.execute(
-      `DELETE FROM LANGUAGES WHERE idlanguage = ?`,
+      `DELETE FROM LANGUAGE WHERE idlanguage = ?`,
       [idlanguage]
     );
 
