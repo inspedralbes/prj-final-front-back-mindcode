@@ -6,6 +6,8 @@ import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
 import {login, verifyTokenMiddleware} from './tokens.js';
+import { CLIENT_RENEG_LIMIT } from 'tls';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -117,14 +119,15 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
     }
 });
 
-app.post('/api/class/enroll', verifyTokenMiddleware,async (req, res) => {
-   const { class_code, user_id } = req.body;
+app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
+   const { class_code } = req.body;
+   const verified_user_id = req.verified_user_id
 
 
-  if (!class_code || !user_id) {
+  if (!class_code) {
     return res
       .status(400)
-      .json({ error: "Class code and student ID are required" });
+      .json({ error: "Class code is required" });
   }
 
     try {

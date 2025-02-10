@@ -1,10 +1,14 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {googleLogin} from '../../services/firebase';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../stores/authStore';
 
 const Signup = () => {
+  const [hydrated, setHydrated] = useState(false)
+  const setUser  = useAuthStore((state) => state.setUser);
+  const value = useAuthStore((state) => state.testValue)
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
@@ -12,6 +16,13 @@ const Signup = () => {
       const userData = await googleLogin();
 
       if (!userData) return; 
+
+      
+      const userDataParsed = userData.userData
+
+      console.log("setting user info with this info: ", {userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
+      
+      setUser({userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
 
       if (userData.hasClass) {
         router.push('/StPage'); 
@@ -22,13 +33,20 @@ const Signup = () => {
       console.error('Error en el login:', error);
     }
   };
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) return <p>Loading...</p>
+
  return (
    <div className="min-h-screen bg-black text-gray-900 flex justify-center">
      <div className="max-w-screen-xl m-0 sm:m-10 bg-black shadow sm:rounded-lg flex flex-row-reverse justify-center flex-1">
        <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
          <div className=" mt-60 flex-col items-center">
            <h1 className="text-xl xl:text-xl font-extrabold text-white">
-             Autentiqueu-vos utilitzant el vostre compte a:
+             Autentiqueu-vos utilitzant el vostre compte a: 
            </h1>
            <div className="w-full flex-1 mt-8">
              <div className="flex flex-col items-center">

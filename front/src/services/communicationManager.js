@@ -1,6 +1,9 @@
 import { cloneUniformsGroups } from "three/src/renderers/shaders/UniformsUtils";
+import { useAuthStore } from "../stores/authStore"
 
 const URL = process.env.NEXT_PUBLIC_URL;
+
+const user_info = useAuthStore.getState().user_info
 
 export async function loginGoogle(uid,name,gmail){
   if(!uid | !name | !gmail){
@@ -66,26 +69,21 @@ export async function createClass(name, teacher_id) {
   };
 
 
-  export async function joinClass(class_code, user_id, token) {
-    console.log(token)
+  export async function joinClass(class_code) {
     try {
-        if (!class_code || !user_id) {
-            throw new Error('Class_code and user_id are required');
+        if (!class_code) {
+            throw new Error('Class_code required');
         }
 
-        if (!token) {
-          throw new Error('Token is required for authorization');
-        }
-
-        console.log("Attempting to join class with:", { class_code, user_id });
+        console.log("Attempting to join class with:", { class_code });
 
         const response = await fetch(`${URL}/api/class/enroll`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
+                "Authorization": `Bearer ${user_info.token}`,
             },
-            body: JSON.stringify({class_code, user_id}),
+            body: JSON.stringify({class_code}),
         });
 
         console.log("Server Response:", response);
@@ -201,11 +199,7 @@ export async function getStudents(class_id) {
     const data = await response.json()
     return data;
   }
-
- 
-    
-    
-    
+  
 // Languages
 
 export async function createLanguage(name) {
