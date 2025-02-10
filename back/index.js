@@ -1,10 +1,11 @@
-import express from "express";
-import dotenv from "dotenv";
-import mysql from "mysql2/promise";
-import ShortUniqueId from "short-unique-id";
-import admin from "firebase-admin";
-import fs from "fs";
-import cors from "cors";
+import express from 'express';
+import dotenv from 'dotenv';
+import mysql from 'mysql2/promise';
+import ShortUniqueId from 'short-unique-id';
+import admin from 'firebase-admin';
+import fs from 'fs';
+import cors from 'cors';
+// import { connection } from 'mongoose';
 
 dotenv.config();
 
@@ -63,6 +64,64 @@ async function testConnection() {
 
 testConnection();
 
+app.post('/api/auth/google', async (req, res) => {
+    const { uid, name, gmail } = req.body;
+
+    if (!gmail.endsWith('@inspedralbes.cat')) {
+        return res.status(400).json({ error: 'Incorrect Credentials' });
+    }
+
+    const ltterNum = /^[a-zA-Z]\d/;
+    const ltterLtter = /^[a-zA-Z]{2}/;
+
+    if (!ltterLtter.test(gmail)) {
+        try {
+            const connection = await mysql.createConnection(dbConfig);
+            const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
+
+            if (rows.length === 0) {
+                await connection.execute(
+                    'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
+                    [uid, name, gmail, 0]
+                );
+                console.log('Nuevo usuario creado en la base de datos');
+            } else {
+                console.log('El usuario ya existe en la base de datos');
+            }
+
+            await connection.end();
+            res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
+        } catch (error) {
+            console.error('Error al verificar el UID de Google:', error);
+            res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
+        }
+    }
+    else if (!ltterNum.test(gmail)) {
+        try {
+            const connection = await mysql.createConnection(dbConfig);
+            const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
+
+            if (rows.length === 0) {
+                await connection.execute(
+                    'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
+                    [uid, name, gmail, 1]
+                );
+                console.log('Nuevo usuario creado en la base de datos');
+            } else {
+                console.log('El usuario ya existe en la base de datos');
+            }
+
+            await connection.end();
+            res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
+        } catch (error) {
+            console.error('Error al verificar el UID de Google:', error);
+            res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
+        }
+    }
+    else {
+        console.log("Incorrect Credentials");
+    }
+});
 
 app.post('/api/class', async (req, res) => {
     const { name, teacher_id } = req.body;
@@ -176,7 +235,7 @@ app.post('/api/class/enroll', async (req, res) => {
                     await updateConnection.end();
 
                 } else {
-                    
+
                     const connection = await createConnection();
                     await connection.execute(
                         'UPDATE USER SET class = ? WHERE id = ?',
@@ -203,10 +262,10 @@ app.post('/api/class/enroll', async (req, res) => {
     }
 });
 
-app.post("/message/create", async (req, res) => {
-  const { message } = req.body;
+app.post('/message/create', async (req, res) => {
+    const { message, language_id, class_id, verified_user_id } = req.body;
 
-  console.log(message);
+    console.log(message);
 
   // Validación del mensaje
   if (!message || typeof message !== "string" || message.trim() === "") {
@@ -215,8 +274,100 @@ app.post("/message/create", async (req, res) => {
       .json({ error: "El mensaje es obligatorio y no puede estar vacío." });
   }
 
-  try {
-    const aiResponse = await sendToAI(message);
+    // Validación del ID de idioma
+    if (!language_id || typeof language_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de idioma es obligatorio y debe ser un número.' });
+    }
+
+    // Validación del ID de clase
+    if (!class_id || typeof class_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de clase es obligatorio y debe ser un número.' });
+    }
+
+    // Validación del ID de usuario verificado
+    if (!verified_user_id || typeof verified_user_id !== 'number') {
+        return res.status(400).json({ error: 'El ID de usuario verificado es obligatorio y debe ser un número.' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT id FROM USER WHERE id = ? AND class = ?',
+            [verified_user_id, class_id]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(401).json({ error: 'No perteneces a esta clase.' });
+        }
+
+    } catch (error) {
+        console.error('Error fetching class language:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end();
+    }
+    
+    let language;
+    let languageToSend;
+
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT language FROM CLASS WHERE idclass = ?',
+            [class_id]
+        );
+        await connection.end();
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Class not found' });
+        }
+
+        language = rows[0].language;
+        console.log("Language: ", language);
+    } catch (error) {
+        console.error('Error fetching class language:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end();
+    }
+
+    const parsedLanguages = JSON.parse(language);
+
+    languageToSend = parsedLanguages.find((language) => language.id === language_id);
+
+    let restriction
+
+    if (languageToSend === undefined) {
+        return res.status(400).json({ error: 'El lenguaje del mensaje no coincide con el lenguaje de la clase.' });
+    } else {
+
+        console.log(languageToSend);
+        console.log(languageToSend.restrictionId);
+
+        try {
+            const connection = await createConnection();
+            const [rows] = await connection.execute(
+                'SELECT content FROM RESTRICTION WHERE idrestriction = ?',
+                [languageToSend.restrictionId]
+            );
+
+            if (rows.length === 0) {
+                return res.status(404).json({ error: 'Restriction not found' });
+            }
+
+            restriction = rows[0].content;
+        } catch (error) {
+
+            console.error('Error fetching restriction:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        } finally {
+            connection.end();
+        }
+    }
+
+    try {
+        const aiResponse = await sendToAI(message, languageToSend.name, restriction);
 
     const returnMessage = aiResponse.content;
 
@@ -247,7 +398,118 @@ app.post("/message/create", async (req, res) => {
     // } else {
     //     res.status(500).json({ error: 'Hubo un problema al procesar la solicitud.' });
     // }
+    
   }
+});
+
+app.post('/api/language', async (req, res) => {
+    const { name } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO LANGUAGE (name) VALUES (?)',
+            [name]
+        );
+        await connection.end();
+
+        res.status(201).json({ idlanguage: result.insertId, name });
+    } catch (error) {
+        console.error('Error creating language:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.put('/api/language/class', async (req, res) => {
+    const { classId, languages } = req.body;
+
+    if (!classId || !Array.isArray(languages) || languages.length === 0) {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [classRows] = await connection.execute(
+            'SELECT idclass FROM CLASS WHERE idclass = ?',
+            [classId]
+        );
+
+        if (classRows.length === 0) {
+            await connection.end();
+            return res.status(404).json({ error: 'Class not found' });
+        }
+
+        await connection.execute(
+            'UPDATE CLASS SET language = ? WHERE idclass = ?',
+            [JSON.stringify(languages), classId]
+        );
+
+        await connection.end();
+
+        res.status(200).json({ classId, languages });
+    } catch (error) {
+        console.error('Error updating languages:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/language', async (req, res) => {
+    const { name } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO LANGUAGE (name) VALUES (?)',
+            [name]
+        );
+        await connection.end();
+
+        res.status(201).json({ idlanguage: result.insertId, name });
+    } catch (error) {
+        console.error('Error creating language:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.put('/api/language/class', async (req, res) => {
+    const { classId, languages } = req.body;
+
+    if (!classId || !Array.isArray(languages) || languages.length === 0) {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [classRows] = await connection.execute(
+            'SELECT idclass FROM CLASS WHERE idclass = ?',
+            [classId]
+        );
+
+        if (classRows.length === 0) {
+            await connection.end();
+            return res.status(404).json({ error: 'Class not found' });
+        }
+
+        await connection.execute(
+            'UPDATE CLASS SET language = ? WHERE idclass = ?',
+            [JSON.stringify(languages), classId]
+        );
+
+        await connection.end();
+
+        res.status(200).json({ classId, languages });
+    } catch (error) {
+        console.error('Error updating languages:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 function getClassInfo(class_id) {
@@ -310,15 +572,15 @@ function getClassInfo(class_id) {
     });
 }
 
-const sendToAI = async (message) => {
-  console.log("sending message");
-  const response = await fetch(`http://${AIHOST}:4567`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userPrompt: message }),
-  });
+const sendToAI = async (message, language, restriction) => {
+    console.log("sending message");
+    const response = await fetch(`http://${AIHOST}:4567`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userPrompt: message, language, restriction })
+    });
 
   console.log("answer recieved");
 
@@ -526,7 +788,7 @@ app.get("/api/user", async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('This is the back end!');
 });
 
 app.listen(port, () => {
