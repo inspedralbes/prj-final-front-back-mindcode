@@ -14,12 +14,15 @@ export async function loginGoogle(uid,name,gmail){
   });
 
   const data = await response.json();
-  const token = data.token;
-  console.log(token)
+  console.log(data.token)
+
+
 
     if (!data) {
       throw new Error("Respuesta vacía del servidor");
     }
+
+    
     return {
       hasClass: data.class_id !== null, 
       userData: data,
@@ -58,10 +61,15 @@ export async function createClass(name, teacher_id) {
   };
 
 
-  export async function joinClass(class_code, user_id) {
+  export async function joinClass(class_code, user_id, token) {
+    console.log(token)
     try {
         if (!class_code || !user_id) {
             throw new Error('Class_code and user_id are required');
+        }
+
+        if (!token) {
+          throw new Error('Token is required for authorization');
         }
 
         console.log("Attempting to join class with:", { class_code, user_id });
@@ -70,6 +78,7 @@ export async function createClass(name, teacher_id) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify({class_code, user_id}),
         });

@@ -66,7 +66,7 @@ async function testConnection() {
 
 testConnection();
 
-app.post('/api/class', async (req, res) => {
+app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
    const { name, teacher_id } = req.body;
 
   const language = "[]"; /* TODO: Add language array to class creation */
@@ -120,7 +120,7 @@ app.post('/api/class', async (req, res) => {
   }
 });
 
-app.post('/api/class/enroll', async (req, res) => {
+app.post('/api/class/enroll', verifyTokenMiddleware,async (req, res) => {
    const { class_code, user_id } = req.body;
 
 
@@ -185,7 +185,7 @@ app.post('/api/class/enroll', async (req, res) => {
   }
 });
 
-app.post('/message/create', async (req, res) => {
+app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
     const { message } = req.body;
 
 
@@ -385,7 +385,7 @@ app.post('/api/auth/google', async (req, res) => {
 
     res.json({
       message: "User authenticated correctly",
-      token: token, 
+      token, 
       id: userId,
       name,
       gmail,
@@ -399,7 +399,7 @@ app.post('/api/auth/google', async (req, res) => {
   }
 });
 
-app.post("/api/language", async (req, res) => {
+app.post("/api/language", verifyTokenMiddleware, async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -421,7 +421,7 @@ app.post("/api/language", async (req, res) => {
   }
 });
 
-app.get("/api/class/languages", async (req, res) => {
+app.get("/api/class/languages", verifyTokenMiddleware, async (req, res) => {
   const { class_id } = req.query;
 
   if (!class_id) {
@@ -450,7 +450,7 @@ app.get("/api/class/languages", async (req, res) => {
   }
 });
 
-app.delete("/api/language", async (req, res) => {
+app.delete("/api/language", verifyTokenMiddleware, async (req, res) => {
   const { idlanguage } = req.body;
 
   if (!idlanguage) {
@@ -478,7 +478,7 @@ app.delete("/api/language", async (req, res) => {
   }
 });
 
-app.get("/api/user", async (req, res) => {
+app.get("/api/user", verifyTokenMiddleware, async (req, res) => {
   const { class_id } = req.query;
 
   if (!class_id) {
