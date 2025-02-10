@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import StPage from "../../../pages/StPage";
 import { joinClass } from "../../../services/communicationManager"; // Import joinClass function
-import BaseForm from "../molecules/BaseForm"
+import BaseForm from "../molecules/BaseForm";
+import { useRouter } from 'next/navigation';
+
 
 const JoinClassForm = ({  }) => {
+    const router = useRouter();
     const [classCode, setClassCode] = useState(""); // Add state for class code
     const [userId, setUserId] = useState(""); // Add state for user ID
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,7 +36,7 @@ const JoinClassForm = ({  }) => {
       };
     
       if (isAuthenticated) {
-        return <StPage />;
+        router.push('/StPage');
       }
     return (
         

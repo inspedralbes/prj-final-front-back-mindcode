@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import JoinClassForm from "../app/components/organisms/JoinClassForm";
+import JoinClassForm from "../components/organisms/JoinClassForm";
 
 const JoinClass = () => {
 

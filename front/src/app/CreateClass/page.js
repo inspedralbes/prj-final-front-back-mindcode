@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import JoinClassForm from "../app/components/organisms/JoinClassForm";
-import CreateClassForm from "../app/components/organisms/CreateClassForm"
+import JoinClassForm from "../components/organisms/JoinClassForm";
+import CreateClassForm from "../components/organisms/CreateClassForm"
 
 const CreateClass = () => {
   return (
