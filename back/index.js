@@ -5,7 +5,7 @@ import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
-import { connection } from 'mongoose';
+// import { connection } from 'mongoose';
 
 dotenv.config();
 
