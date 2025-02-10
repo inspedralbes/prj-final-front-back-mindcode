@@ -1,3 +1,5 @@
+import { cloneUniformsGroups } from "three/src/renderers/shaders/UniformsUtils";
+
 const URL = process.env.NEXT_PUBLIC_URL;
 
 export async function loginGoogle(uid,name,gmail){
@@ -14,6 +16,9 @@ export async function loginGoogle(uid,name,gmail){
   });
 
   const data = await response.json();
+
+  console.log(data);
+  
 
     if (!data) {
       throw new Error("Respuesta vacía del servidor");

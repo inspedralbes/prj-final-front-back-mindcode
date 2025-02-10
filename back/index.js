@@ -366,6 +366,8 @@ app.post('/api/auth/google', async (req, res) => {
 
     let userId;
 
+    let classId = 0;
+
     if (rows.length === 0) {
       const[result] = await connection.execute(
         "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
@@ -376,30 +378,35 @@ app.post('/api/auth/google', async (req, res) => {
       console.log("New user created in the database");
     } else {
       userId = rows[0].id;
+      classId = rows[0].class;
       console.log("User already exists in the database");
     }
 
-    const [classRows] = await connection.execute(
-        "SELECT c.idclass, c.name, c.teacher_id, c.language, c.code " +
-        "FROM CLASS c " +
-        "JOIN USER u ON c.idclass = u.class " +
-        "WHERE u.id = ?",
-        [userId]
-      );
-  
-      let classInfo = null;
-      if (classRows.length > 0) {
-        const classData = classRows[0];
-        classInfo = {
-          class_id: classData.idclass,
-          name: classData.name,
-          teacher_id: classData.teacher_id,
-          language: classData.language,
-          class_code: classData.code
-        };
-      }
+    let class_info = null
 
-    await connection.end();
+    if(classId != 0){
+      class_info = await getClassInfo(classId);
+    }
+
+    // const [classRows] = await connection.execute(
+    //     "SELECT class FROM USER " +
+    //     "WHERE id = ?",
+    //     [userId]
+    //   );
+  
+    //   let classInfo = null;
+    //   if (classRows.length > 0) {
+    //     const classData = classRows[0];
+    //     classInfo = {
+    //       class_id: classData.idclass,
+    //       name: classData.name,
+    //       teacher_id: classData.teacher_id,
+    //       language: classData.language,
+    //       class_code: classData.code
+    //     };
+    //   }
+
+    // await connection.end();
 
     res.json({
       message: "User authenticated correctly",
@@ -408,8 +415,8 @@ app.post('/api/auth/google', async (req, res) => {
       name,
       gmail,
       teacher,
-      class_id: classInfo ? classInfo.class_id : null,
-      class_info: classInfo,
+      class_id: class_info ? class_info.class_id : null,
+      class_info: class_info
     });
   } catch (error) {
     console.error("Authenticated failed:", error);
