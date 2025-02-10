@@ -1,6 +1,5 @@
 services:
-  mindcode-back:
-    # image: "node:23-alpine3.20"
+  mindcode-back: 
     build: 
       dockerfile: ./back/develop.Dockerfile
       context: .
@@ -12,11 +11,11 @@ services:
     depends_on:
       - mindcode-mysql
       - mindcode-mongo
-    command: sh -c "cp .env.DEV .env && npm install && nodemon -L index.js"
+    command: sh -c "npm install && nodemon -L index.js"
   
   mindcode-front:
     image: node:23-alpine3.20
-    command: sh -c "cp .env.DEV .env && npm install && npm run dev"
+    command: sh -c "npm install && npm run dev"
     volumes:
       - ./front:/app
       - /app/node_modules
@@ -50,7 +49,7 @@ services:
       - mindcode-mongo
 
   mindcode-mysql:
-    image: mysql
+    image: mysql:9.2
     restart: always
     environment:
       MYSQL_DATABASE: mindcode

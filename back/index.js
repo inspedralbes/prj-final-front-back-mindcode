@@ -27,10 +27,10 @@ app.use(express.json());
 
 // Database configuration
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
 };
 
 const AIHOST = process.env.AIHOST;
@@ -39,29 +39,29 @@ const AIHOST = process.env.AIHOST;
 const uid = new ShortUniqueId({ length: 10 });
 
 async function createConnection() {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    console.log("Database connection successful");
-    return connection;
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    throw error;
-  }
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+        console.log('Database connection successful');
+        return connection;
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        throw error;
+    }
 }
 
 
 
 async function testConnection() {
-  const connection = await createConnection();
-  try {
-    await connection.ping();
-    console.log("Database connection test successful");
-  } catch (error) {
-    console.error("Database connection test failed:", error);
-  } finally {
-    await connection.end();
-    console.log("Database connection closed");
-  }
+    const connection = await createConnection();
+    try {
+        await connection.ping();
+        console.log('Database connection test successful');
+    } catch (error) {
+        console.error('Database connection test failed:', error);
+    } finally {
+        await connection.end();
+        console.log('Database connection closed');
+    }
 }
 
 testConnection();
@@ -71,53 +71,49 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
 
   const language = "[]"; /* TODO: Add language array to class creation */
 
-  if (!name || !teacher_id) {
-    return res
-      .status(400)
-      .json({ error: "Class name and teacher ID are required" });
-  }
-
-  try {
-    const connection = await createConnection();
-    const [rows] = await connection.execute(
-      'SELECT id FROM USER WHERE id = ? AND teacher = "1"',
-      [teacher_id]
-    );
-    await connection.end();
-
-    if (rows.length === 0) {
-      return res
-        .status(401)
-        .json({ error: "You are not authorized to take that action" });
+    if (!name || !teacher_id) {
+        return res.status(400).json({ error: 'Class name and teacher ID are required' });
     }
-  } catch (error) {
-    console.error("Error verifying teacher ID:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
 
-  const class_code = uid.rnd();
 
-  console.log(class_code);
+    try {
+        const connection = await createConnection();
+        const [rows] = await connection.execute(
+            'SELECT id FROM USER WHERE id = ? AND teacher = "1"',
+            [teacher_id]
+        );
+        await connection.end();
 
-  try {
-    const connection = await createConnection();
-    const [result] = await connection.execute(
-      "INSERT INTO CLASS (name, teacher_id, language, code) VALUES (?, ?, ?, ?)",
-      [name, JSON.stringify([teacher_id]), language, class_code]
-    );
-    await connection.end();
 
-    res.status(201).json({
-      class_id: result.insertId,
-      name,
-      teacher_id,
-      language,
-      class_code,
-    });
-  } catch (error) {
-    console.error("Error creating class:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+        if (rows.length === 0) {
+            return res.status(401).json({ error: 'You are not authorized to take that action' });
+        }
+    } catch (error) {
+        console.error('Error verifying teacher ID:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+
+
+    const class_code = uid.rnd();
+
+
+    console.log(class_code);
+
+
+    try {
+        const connection = await createConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO CLASS (name, teacher_id, language, code) VALUES (?, ?, ?, ?)',
+            [name, JSON.stringify([teacher_id]), language, class_code]
+        );
+        await connection.end();
+
+
+        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code });
+    } catch (error) {
+        console.error('Error creating class:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 app.post('/api/class/enroll', verifyTokenMiddleware,async (req, res) => {
@@ -130,59 +126,86 @@ app.post('/api/class/enroll', verifyTokenMiddleware,async (req, res) => {
       .json({ error: "Class code and student ID are required" });
   }
 
-  try {
-    const connection = await createConnection();
-    const [rows] = await connection.execute(
-      "SELECT idclass FROM CLASS WHERE code = ?",
-      [class_code]
-    );
-    await connection.end();
-
-    if (rows.length === 0) {
-      return res.status(400).json({ error: "Class does not exist" });
-    } else {
-      const class_id = rows[0].idclass;
-      // const teacher_info = JSON.parse(rows[0].teacher_id);
-      // const language_info = JSON.parse(rows[0].language);
-      try {
-        const { name, language_info, teacher_info, classmate_info } =
-          await getClassInfo(class_id);
-
-        console.log("No es el getClassInfo");
-
+    try {
         const connection = await createConnection();
-        const [result] = await connection.execute(
-          "UPDATE USER SET class = ? WHERE id = ?",
-          [class_id, user_id]
+        const [rows] = await connection.execute(
+            'SELECT idclass FROM CLASS WHERE code = ?',
+            [class_code]
         );
         await connection.end();
 
-        if (result.affectedRows === 0) {
-          return res.status(400).json({
-            error: `Student could not be added to class, student doesn't exist`,
-          });
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'Class does not exist' });
         } else {
-          const class_details = {
-            name,
-            class_id,
-            language_info,
-            teacher_info,
-            classmate_info,
-          };
-          res.json({
-            message: "Student has been successfully enrolled in the class",
-            class_details,
-          });
+            const class_id = rows[0].idclass;
+            // const teacher_info = JSON.parse(rows[0].teacher_id);
+            // const language_info = JSON.parse(rows[0].language);
+            try {
+
+                // check for teacher
+
+                const connection = await createConnection();
+                const [userRows] = await connection.execute(
+                    'SELECT teacher FROM USER WHERE id = ?',
+                    [user_id]
+                );
+                await connection.end();
+
+                if (userRows.length === 0) {
+                    return res.status(400).json({ error: 'User does not exist' });
+                }
+
+                const isTeacher = userRows[0].teacher === 1;
+
+                if (isTeacher) {
+                    const connection = await createConnection();
+                    const [classRows] = await connection.execute(
+                        'SELECT teacher_id FROM CLASS WHERE idclass = ?',
+                        [class_id]
+                    );
+                    await connection.end();
+
+                    if (classRows.length === 0) {
+                        return res.status(400).json({ error: 'Class does not exist' });
+                    }
+
+                    let teacher_ids = JSON.parse(classRows[0].teacher_id);
+                    teacher_ids.push(user_id);
+
+                    const updateConnection = await createConnection();
+                    await updateConnection.execute(
+                        'UPDATE CLASS SET teacher_id = ? WHERE idclass = ?',
+                        [JSON.stringify(teacher_ids), class_id]
+                    );
+                    await updateConnection.end();
+
+                } else {
+                    
+                    const connection = await createConnection();
+                    await connection.execute(
+                        'UPDATE USER SET class = ? WHERE id = ?',
+                        [class_id, user_id]
+                    );
+                    await connection.end();
+                }
+
+
+                const { name, language_info, teacher_info, classmate_info } = await getClassInfo(class_id);
+
+
+                const class_details = { name, class_id, language_info, teacher_info, classmate_info };
+                res.json({ message: 'Student has been successfully enrolled in the class', class_details });
+
+            } catch (error) {
+                console.error('Error adding student to class:', error);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
         }
-      } catch (error) {
-        console.error("Error adding student to class:", error);
-        return res.status(500).json({ error: "Internal server error" });
-      }
+    } catch (error) {
+        console.error('Error verifying class code:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
-  } catch (error) {
-    console.error("Error verifying class code:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
@@ -203,10 +226,10 @@ app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
 
     const returnMessage = aiResponse.content;
 
-    // Extract the content within <think> tags
-    const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
+        // Extract the content within <think> tags
+        const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
 
-    let restOfContent = "Sorry, something went wrong. Please try again.";
+        let restOfContent = "Sorry, something went wrong. Please try again.";
 
     if (thinkTagContent && thinkTagContent[1]) {
       const extractedContent = thinkTagContent[1];
@@ -234,62 +257,63 @@ app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
 });
 
 function getClassInfo(class_id) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const connection = await createConnection();
-      const [rows] = await connection.execute(
-        "SELECT name, language, teacher_id FROM CLASS WHERE idclass = ?",
-        [class_id]
-      );
-      await connection.end();
-
-      if (rows.length === 0) {
-        reject("Class does not exist");
-      } else {
-        const connection = await createConnection();
-        const [classmates] = await connection.execute(
-          "SELECT id, name FROM USER WHERE class = ?",
-          [class_id]
-        );
-        await connection.end();
-
-        const classmate_info = classmates.map(({ id, name }) => ({ id, name }));
-
-        const { name, language, teacher_id } = rows[0];
-
-        const parsed_teacher_id = JSON.parse(teacher_id);
-
-        console.log("ID professors: ", parsed_teacher_id);
-
-        const teacher_info = await Promise.all(
-          parsed_teacher_id.map(async (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const connection = await createConnection();
-            const [teacher] = await connection.execute(
-              "SELECT name FROM USER WHERE id = ?",
-              [id]
+            const [rows] = await connection.execute(
+                'SELECT name, language, teacher_id FROM CLASS WHERE idclass = ?',
+                [class_id]
             );
             await connection.end();
 
-            console.log("Teacher info after SELECT: ", teacher[0]);
 
-            return { id, name: teacher[0].name };
-          })
-        );
+            if (rows.length === 0) {
+                reject('Class does not exist');
+            } else {
+                const connection = await createConnection();
+                const [classmates] = await connection.execute(
+                    'SELECT id, name FROM USER WHERE class = ?',
+                    [class_id]
+                );
+                await connection.end();
+
+
+                const classmate_info = classmates.map(({ id, name }) => ({ id, name }));
+
+
+                const { name, language, teacher_id } = rows[0];
+
+
+                const parsed_teacher_id = JSON.parse(teacher_id);
+
+
+                console.log("ID professors: ", parsed_teacher_id);
+
+
+                const teacher_info = await Promise.all(parsed_teacher_id.map(async (id) => {
+                    const connection = await createConnection();
+                    const [teacher] = await connection.execute(
+                        'SELECT name FROM USER WHERE id = ?',
+                        [id]
+                    );
+                    await connection.end();
+
+                    console.log("Teacher info after SELECT: ", teacher[0]);
+
+                    return { id, name: teacher[0].name };
+                }));
+
+
+
 
         const language_info = JSON.parse(language);
 
-        resolve({
-          class_id,
-          name,
-          language_info,
-          teacher_info,
-          classmate_info,
-        });
-      }
-    } catch (error) {
-      reject("Internal server error");
-    }
-  });
+                resolve({ class_id, name, language_info, teacher_info, classmate_info });
+            }
+        } catch (error) {
+            reject('Internal server error');
+        }
+    });
 }
 
 const sendToAI = async (message) => {
@@ -324,12 +348,13 @@ const sendToAI = async (message) => {
 app.post('/api/auth/google', async (req, res) => {
     const { uid, name, gmail } = req.body;
 
-  if (!gmail.endsWith("@inspedralbes.cat")) {
-    return res.status(400).json({ error: "Incorrect Credentials" });
-  }
+    if (!gmail.endsWith('@inspedralbes.cat')) {
+        return res.status(400).json({ error: 'Incorrect Credentials' });
+    }
 
-//   const ltterNum = /^[a-zA-Z]\d/;
-  const ltterLtter = /^[a-zA-Z]{2}/;
+    const ltterNum = /^[a-zA-Z]\d/;
+    const ltterLtter = /^[a-zA-Z]{2}/;
+
 
   let teacher = 0;
 
@@ -346,6 +371,8 @@ app.post('/api/auth/google', async (req, res) => {
 
     let userId;
 
+    let classId = 0;
+
     if (rows.length === 0) {
       const[result] = await connection.execute(
         "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
@@ -356,28 +383,33 @@ app.post('/api/auth/google', async (req, res) => {
       console.log("New user created in the database");
     } else {
       userId = rows[0].id;
+      classId = rows[0].class;
       console.log("User already exists in the database");
     }
 
-    const [classRows] = await connection.execute(
-        "SELECT c.idclass, c.name, c.teacher_id, c.language, c.code " +
-        "FROM CLASS c " +
-        "JOIN USER u ON c.idclass = u.class " +
-        "WHERE u.id = ?",
-        [userId]
-      );
+    let class_info = null
+
+    if(classId != 0){
+      class_info = await getClassInfo(classId);
+    }
+
+    // const [classRows] = await connection.execute(
+    //     "SELECT class FROM USER " +
+    //     "WHERE id = ?",
+    //     [userId]
+    //   );
   
-      let classInfo = null;
-      if (classRows.length > 0) {
-        const classData = classRows[0];
-        classInfo = {
-          class_id: classData.idclass,
-          name: classData.name,
-          teacher_id: classData.teacher_id,
-          language: classData.language,
-          class_code: classData.code
-        };
-      }
+    //   let classInfo = null;
+    //   if (classRows.length > 0) {
+    //     const classData = classRows[0];
+    //     classInfo = {
+    //       class_id: classData.idclass,
+    //       name: classData.name,
+    //       teacher_id: classData.teacher_id,
+    //       language: classData.language,
+    //       class_code: classData.code
+    //     };
+    //   }
 
     await connection.end();
     const user = { id: userId };
@@ -390,8 +422,8 @@ app.post('/api/auth/google', async (req, res) => {
       name,
       gmail,
       teacher,
-      class_id: classInfo ? classInfo.class_id : null,
-      class_info: classInfo,
+      class_id: class_info ? class_info.class_id : null,
+      class_info: class_info
     });
   } catch (error) {
     console.error("Authenticated failed:", error);
@@ -500,10 +532,10 @@ app.get("/api/user", verifyTokenMiddleware, async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get('/', (req, res) => {
+    res.send('Hello World!');
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
