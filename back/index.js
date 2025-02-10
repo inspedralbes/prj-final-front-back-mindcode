@@ -262,7 +262,7 @@ function getClassInfo(class_id) {
 
 
             if (rows.length === 0) {
-                reject('Class does not exist');
+                reject('Class does not exist info info info');
             } else {
                 const connection = await createConnection();
                 const [classmates] = await connection.execute(
@@ -366,7 +366,7 @@ app.post('/api/auth/google', async (req, res) => {
 
     let userId;
 
-    let classId = 0;
+    let classId = null;
 
     if (rows.length === 0) {
       const[result] = await connection.execute(
@@ -384,7 +384,7 @@ app.post('/api/auth/google', async (req, res) => {
 
     let class_info = null
 
-    if(classId != 0){
+    if(classId != null) {
       class_info = await getClassInfo(classId);
     }
 
