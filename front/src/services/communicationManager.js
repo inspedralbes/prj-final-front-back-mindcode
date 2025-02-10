@@ -149,34 +149,21 @@ export async function sendMessage(body) {
     }
 }
 
+export async function getStudents(class_id) {
+  try {
+    const response = await fetch(`${URL}/api/user?class_id=${class_id}`);  
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.body;  
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    throw error;  
+  }
+}
 
-    export async function createLanguage(name) {
-      try {
-        if (!name) {
-          throw new Error('Name is required');
-        }
-    
-        const response = await fetch(`${URL}/api/language`,{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({name}),
-      });
-        console.log(response)
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Error getting languageS: ${errorText}`);
-        }
-    
-        const data = await response.json();
-        console.log(data);
-        return data;
-      } catch (error) {
-        console.error("Error en Communication Manager:", error);
-        throw error;
-      }
-    };
+// Languages
 
     export async function getLanguage(class_id) {
       try {
@@ -215,19 +202,62 @@ export async function sendMessage(body) {
     return data;
   }
 
-    export async function getStudents(class_id) {
-      try {
-        const response = await fetch(`${URL}/api/user?class_id=${class_id}`);  
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        const data = await response.json();
-        return data.body;  
-      } catch (error) {
-        console.error("Error fetching students:", error);
-        throw error;  
-      }
+ 
+    
+    
+    
+// Languages
+
+export async function createLanguage(name) {
+  try {
+    if (!name) {
+      throw new Error('Name is required');
     }
-    
-    
-    
+
+    const response = await fetch(`${URL}/api/language`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error creating language: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
+}
+
+export async function updateLanguages(classId, languages) {
+  try {
+    if (!classId || !Array.isArray(languages)) {
+      throw new Error('classId and languages array are required');
+    }
+
+    const response = await fetch(`${URL}/api/language/class`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ classId, languages }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error updating languages: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
+}
