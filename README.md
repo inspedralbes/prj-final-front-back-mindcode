@@ -6,7 +6,7 @@
   - Arnau Fernández
 
 ### NOM DEL PROJECTE :
-  ## MINDCODE.
+ MINDCODE.
   Referència a l'us de la ment i la intel·lecte per a desenvolupar coneixements de programació i codificació
   
 ### DESCRIPCIÓ DEL PROJECTE :
