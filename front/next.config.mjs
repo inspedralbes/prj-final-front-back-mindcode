@@ -2,7 +2,7 @@
 const nextConfig = {
     output: "standalone",
     basePath: '',
-    assetPrefix: '/',
+    assetPrefix: process.env.NODE_ENV === 'production' ? 'https://mindcode.cat' : '',
     // webpack(config, options) {
     //     if (options.isServer) config.devtool = 'source-map';
     //     return config;

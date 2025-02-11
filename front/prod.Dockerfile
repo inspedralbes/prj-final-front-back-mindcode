@@ -29,6 +29,7 @@ COPY jsconfig.json .
 # ENV ENV_VARIABLE=${ENV_VARIABLE}
 ARG NEXT_PUBLIC_API_KEY
 ENV NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
+ENV NODE_ENV=production  
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at build time
@@ -66,6 +67,7 @@ ARG NEXT_PUBLIC_API_KEY
 ENV NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
 ARG NEXT_PUBLIC_URL
 ENV NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+ENV NODE_ENV=production  
 
 # Uncomment the following line to disable telemetry at run time
 ENV NEXT_TELEMETRY_DISABLED 1
