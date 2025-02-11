@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying MindCode on PRODUCTION ⭐
 on:
   push:
     branches:
-      - feature-create-docker-production
+      - feature-fix-production-front
 
 jobs:
   STOP-DOCKER:
@@ -46,8 +46,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}' >> ./mindcode/.env"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}' >> ./mindcode/.env"
 
-
-
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./compose.production.yaml ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/compose.yaml
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
@@ -89,6 +87,7 @@ jobs:
           touch .env
 
           echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
+          echo "NEXT_PUBLIC_API_KEY=${{ secrets.PRODUCTION_FIREBASE_KEY }}" >> .env
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
