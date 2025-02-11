@@ -24,9 +24,8 @@ services:
       - /tmp
     restart: always
     command: sh -c "npm install && node index.js"
-    links:
-      - mindcode-mysql
-      - mindcode-mongo
+    networks:
+      - mindcode-network
 
   mindcode-mongo:
     container_name: mindcode-mongo
@@ -39,6 +38,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     volumes:
       - mindcode-mongo-db:/data/db
+    networks:
+      - mindcode-network
 
   mindcode-mongo-express:
     image: mongo-express
@@ -52,6 +53,8 @@ services:
       ME_CONFIG_BASICAUTH: false
     depends_on:
       - mindcode-mongo
+    networks:
+      - mindcode-network
 
   mindcode-mysql:
     image: mysql:9.2
@@ -68,6 +71,8 @@ services:
       - mindcode-mysql-db:/var/lib/mysql:rw 
       - ./db/create.sql:/docker-entrypoint-initdb.d/create.sql
       - ./db/inserts.sql:/docker-entrypoint-initdb.d/inserts.sql
+    networks:
+      - mindcode-network
 
   mindcode-adminer:
     image: adminer:4.8.1-standalone
@@ -75,9 +80,15 @@ services:
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - mindcode-network
     depends_on:
       - mindcode-mysql
 
 volumes:
   mindcode-mongo-db:
   mindcode-mysql-db:
+
+networks:
+  mindcode-network:
+    driver: bridge
