@@ -44,9 +44,7 @@ jobs:
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
           echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
           echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> .env
-          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env
-          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env
-          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env          
+          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env        
           echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
           echo "NEXT_PUBLIC_API_KEY=${{ secrets.PRODUCTION_FIREBASE_KEY }}" >> .env
 
