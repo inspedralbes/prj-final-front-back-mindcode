@@ -1,7 +1,12 @@
 services:
   mindcode-front:
     container_name: mindcode-front
-    image: node:23-alpine3.20
+    build:
+      context: ./next-app
+      dockerfile: prod.Dockerfile
+      args:
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+        NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
     working_dir: /usr/src/app
     volumes:
       - ./front:/usr/src/app
@@ -10,7 +15,8 @@ services:
     tmpfs:
       - /tmp
     restart: always
-    command: sh -c "npm install && npm run build && npm run start"
+    networks:
+      - mindcode-network
 
   mindcode-back:
     image: node:23-alpine3.20
