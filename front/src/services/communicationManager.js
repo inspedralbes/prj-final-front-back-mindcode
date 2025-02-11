@@ -55,6 +55,33 @@ export async function createClass(name, teacher_id) {
     }
   };
 
+  export async function getClass(class_id = null) {
+    try {
+        let url = `${URL}/api/class`;
+        if (class_id) {
+            url += `?class_id=${class_id}`;
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error getting class data: ${errorText}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error in Communication Manager - getClass:", error);
+        throw error;
+    }
+}
+
 
   export async function joinClass(class_code, user_id) {
     try {
