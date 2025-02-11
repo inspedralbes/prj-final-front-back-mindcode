@@ -130,7 +130,7 @@ jobs:
                                                                                                                                               fi"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
