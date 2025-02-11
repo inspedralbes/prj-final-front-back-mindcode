@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider,signInWithPopup,getAuth,signInWithRedirect } from "firebase/auth";
+import { GoogleAuthProvider,signInWithPopup,getAuth } from "firebase/auth";
 import { loginGoogle } from "services/communicationManager.js";
 
-const privkey = process.env.NEXT_PUBLIC_API_KEY;
+const privkey = "AIzaSyBr1FyCA2t1wEbjsi30ry1bP5kwwXip-nA";
 
 const firebaseConfig = {
   apiKey: privkey,
