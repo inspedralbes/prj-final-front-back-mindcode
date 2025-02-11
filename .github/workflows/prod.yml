@@ -92,6 +92,13 @@ jobs:
           chmod 600 ~/prod_key.pem
           cd ${{ github.workspace }}
           cd front
+
+          touch .env
+
+          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" > .env
+          echo "NEXT_PUBLIC_API_KEY=${{ secrets.PRODUCTION_FIREBASE_KEY }}" >> .env
+
+
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
                                                                                                                                                 sudo rm -r ./mindcode/front
@@ -100,6 +107,7 @@ jobs:
                                                                                                                                               fi"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/front"
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   BACK-DEPLOY:

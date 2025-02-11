@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import {googleLogin} from '../../services/firebase';
+import { googleLogin } from '../../services/firebase';
 import { useRouter } from 'next/navigation';
 
 const Signup = () => {
