@@ -21,10 +21,7 @@ export async function loginGoogle(uid,name,gmail){
   const data = await response.json();
   console.log(data.token)
 
-
-
   console.log(data);
-  
 
     if (!data) {
       throw new Error("Respuesta vacía del servidor");
@@ -253,5 +250,28 @@ export async function updateLanguages(classId, languages) {
   } catch (error) {
     console.error("Error in Communication Manager:", error);
     throw error;
+  }
+}
+
+export async function getQuiz(id) {
+
+  if(!id){
+    throw new Error('Id is required');
+  }
+  try {
+      const response = await fetch(`${URL}/messages?id=${id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+      });
+      if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+  } catch (error) {
+      console.error("Error loading quiz:", error);
+      throw error;
   }
 }
