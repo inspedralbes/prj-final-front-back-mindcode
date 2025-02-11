@@ -17,11 +17,8 @@ const Signup = () => {
 
       if (!userData) return; 
 
-      
       const userDataParsed = userData.userData
-
       console.log("setting user info with this info: ", {userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
-      
       setUser({userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
 
       if (userData.hasClass) {

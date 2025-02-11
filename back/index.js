@@ -152,7 +152,7 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
                 const connection = await createConnection();
                 const [userRows] = await connection.execute(
                     'SELECT teacher FROM USER WHERE id = ?',
-                    [user_id]
+                    [verified_user_id]
                 );
                 await connection.end();
 
@@ -175,7 +175,7 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
                     }
 
                     let teacher_ids = JSON.parse(classRows[0].teacher_id);
-                    teacher_ids.push(user_id);
+                    teacher_ids.push(verified_user_id);
 
                     const updateConnection = await createConnection();
                     await updateConnection.execute(
@@ -189,7 +189,7 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
                     const connection = await createConnection();
                     await connection.execute(
                         'UPDATE USER SET class = ? WHERE id = ?',
-                        [class_id, user_id]
+                        [class_id, verified_user_id]
                     );
                     await connection.end();
                 }

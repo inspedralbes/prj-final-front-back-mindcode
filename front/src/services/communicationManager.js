@@ -4,6 +4,7 @@ import { useAuthStore } from "../stores/authStore"
 const URL = process.env.NEXT_PUBLIC_URL;
 
 const user_info = useAuthStore.getState().user_info
+const class_details = useAuthStore.getState().class_details
 
 export async function loginGoogle(uid,name,gmail){
   if(!uid | !name | !gmail){
@@ -19,11 +20,8 @@ export async function loginGoogle(uid,name,gmail){
   });
 
   const data = await response.json();
-  console.log(data.token)
 
-
-
-  console.log(data);
+  console.log();
   
 
     if (!data) {
@@ -95,6 +93,12 @@ export async function createClass(name, teacher_id) {
 
         const data = await response.json();
         console.log("Join class success:", data);
+
+        if (data && data.class_details) {
+          useAuthStore.getState().setClass(data.class_details);
+          console.log("Class details saved in store:", data.class_details);
+      }
+      
         return data;
     } catch (error) {
         console.error("Error in Communication Manager:", error);

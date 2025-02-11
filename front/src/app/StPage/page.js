@@ -6,7 +6,6 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import UserChat from "../UserChat/page";
 
-
 const Page = () => {
 
   return (
