@@ -1,5 +1,5 @@
 {
-    "endpoint": "api/quiz",
+    "endpoint": "api/quizToSolve",
     "method": "GET",
     "description": "Retrieve a list of quiz",
     "request":{

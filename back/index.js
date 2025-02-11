@@ -373,7 +373,27 @@ app.post('/api/language', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+app.post('/api/sublanguages', async (req, res) => {
+    const { name } = req.body;
 
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        const connection = await createConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO SUBLANGUAGE (name) VALUES (?)',
+            [name]
+        );
+        await connection.end();
+
+        res.status(201).json({ idlanguage: result.insertId, name });
+    } catch (error) {
+        console.error('Error creating sublanguage:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 app.put('/api/language/class', async (req, res) => {
     const { classId, languages } = req.body;
 
@@ -737,6 +757,51 @@ app.get("/api/user", verifyTokenMiddleware, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.get("/api/quiz",  async (req, res) => {
+    const { id } = req.query;
+  
+    if (!id) {
+      return res.status(400).json({ error: "Id is required" });
+    }
+  
+    try {
+      const connection = await createConnection();
+      const [rows] = await connection.execute(
+        "SELECT questions, results, language_id, sublanguage_id, data, answered FROM QUIZ WHERE id = ?",
+        [id]
+      );
+      await connection.end();
+  
+      res.status(200).json(rows);
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/quizToSolve",  async (req, res) => {
+    const { user_id,quiz_id } = req.query;
+  
+    if (!user_id | !quiz_id) {
+      return res.status(400).json({ error: "User_id and quiz_id are required" });
+    }
+  
+    try {
+      const connection = await createConnection();
+      const [rows] = await connection.execute(
+        "SELECT questions FROM QUIZ WHERE quiz_id = ?",
+        [quiz_id]
+      );
+      await connection.end();
+  
+      res.status(200).json(rows);
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
 
 app.get('/', (req, res) => {
     res.send('This is the back end!');

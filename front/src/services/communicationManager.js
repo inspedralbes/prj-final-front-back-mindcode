@@ -259,7 +259,29 @@ export async function getQuiz(id) {
     throw new Error('Id is required');
   }
   try {
-      const response = await fetch(`${URL}/messages?id=${id}`, {
+      const response = await fetch(`${URL}/api/quiz?id=${id}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+      });
+      if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+  } catch (error) {
+      console.error("Error loading quiz:", error);
+      throw error;
+  }
+}
+export async function getQuizToSolve(user_id,quiz_id) {
+
+  if(!user_id | !quiz_id){
+    throw new Error('User_id and quiz_id are required');
+  }
+  try {
+      const response = await fetch(`${URL}/api/quizToSolve?id=${id}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json',
