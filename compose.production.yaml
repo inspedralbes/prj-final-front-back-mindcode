@@ -7,9 +7,6 @@ services:
       args:
         NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
         NEXT_PUBLIC_API_KEY: ${NEXT_PUBLIC_API_KEY}
-    working_dir: /usr/src/app
-    volumes:
-      - ./front:/usr/src/app
     ports:
       - 5173:3000
     tmpfs:

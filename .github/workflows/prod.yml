@@ -130,6 +130,8 @@ jobs:
           echo "DB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env          
           echo "AI_HOST=${{ secrets.AI_HOST }}" >> .env
 
+          echo "${{ secrets.SERVICE_ACCOUNT }}" > ./serviceaccount.json
+
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/back ] 
                                                                                                                                               then
                                                                                                                                                 sudo rm -r ./mindcode/back
