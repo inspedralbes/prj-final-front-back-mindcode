@@ -22,6 +22,8 @@ COPY src ./src
 COPY public ./public
 COPY next.config.mjs .
 COPY jsconfig.json .
+COPY tailwind.config.mjs .
+COPY postcss.config.mjs .
 
 # Environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030
