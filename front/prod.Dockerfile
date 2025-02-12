@@ -73,5 +73,6 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Note: Don't expose ports here, Compose will handle that for us
+RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
 
-CMD [ "sh", "-c", "cp -r public .next/standalone/ && cp -r .next/static.next/standalone/.next/ && node server.js" ]
+CMD ["node", "server.js"]
