@@ -12,14 +12,14 @@
         {
             "question_id": 2,
             "question_text": "Ingresa tu nombre?",
-            "question_type": "text",
+            "question_type": "select_one",
             "options": [],
             "required": true
         },
         {
             "question_id": 3,
             "question_text": "Ingresa tu correo",
-            "question_type": "email",
+            "question_type": "select_one",
             "options": [],
             "required": true
         }
