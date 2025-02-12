@@ -2,8 +2,8 @@
 export default {
   important: true,
   purge: [
-    // "./src/app/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/components/**/*.js",
+    "./src/app/**/*.js",
     // "./src/app/Login/*.{js,ts,jsx,tsx,mdx}",
     // "./src/app/JoinClass/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -16,6 +16,7 @@ export default {
       },
     },
   },
-  darkMode: 'class',  
+  darkMode: 'class',
+  variants: {},  
   plugins: [],
 };
