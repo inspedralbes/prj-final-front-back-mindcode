@@ -8,8 +8,8 @@ import PfPage from "./PfPage/page";
 import Login from "./Login/page";
 import JoinClass from "./JoinClass/page";
 import CreateClass from "./CreateClass/page";
-import FormClass from "./Form/page";
 import { useRouter } from 'next/navigation';
+import Form from './Form/form'
 
 const Page = () => {
   const [currentPage, setCurrentPage] = useState('login');
@@ -23,8 +23,8 @@ const Page = () => {
       // case 'joinclass':
       //   return <JoinClass />;
         case 'formclass':
-          router.push('/Form');
-      // case 'createclass':
+          return <Form />;      
+          // case 'createclass':
       //   return <CreateClass />;
       //     case 'pfpage':
       //     return <PfPage />;
