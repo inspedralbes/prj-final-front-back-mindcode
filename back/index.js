@@ -123,7 +123,6 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
    const { class_code } = req.body;
    const verified_user_id = req.verified_user_id
 
-
   if (!class_code) {
     return res
       .status(400)

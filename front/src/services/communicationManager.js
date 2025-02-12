@@ -73,6 +73,11 @@ export async function createClass(name, teacher_id) {
             throw new Error('Class_code required');
         }
 
+        const user_info = useAuthStore.getState().user_info;
+        if (!user_info || !user_info.token) {
+            throw new Error('Usuario no autenticado');
+        }
+
         console.log("Attempting to join class with:", { class_code });
 
         const response = await fetch(`${URL}/api/class/enroll`, {
@@ -81,7 +86,7 @@ export async function createClass(name, teacher_id) {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${user_info.token}`,
             },
-            body: JSON.stringify({class_code}),
+            body: JSON.stringify({ class_code }),
         });
 
         console.log("Server Response:", response);
@@ -95,10 +100,10 @@ export async function createClass(name, teacher_id) {
         console.log("Join class success:", data);
 
         if (data && data.class_details) {
-          useAuthStore.getState().setClass(data.class_details);
-          console.log("Class details saved in store:", data.class_details);
-      }
-      
+            useAuthStore.getState().setClass(data.class_details);
+            console.log("Class details saved in store:", data.class_details);
+        }
+
         return data;
     } catch (error) {
         console.error("Error in Communication Manager:", error);
