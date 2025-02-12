@@ -74,5 +74,4 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Note: Don't expose ports here, Compose will handle that for us
 
-
-CMD ["cp", "-r", "public", ".next/standalone/", "&&", "cp", "-r", ".next/static", ".next/standalone/.next/", "&&", "node", "server.js"]
+CMD [ "sh", "-c", "cp -r public .next/standalone/ && cp -r .next/static.next/standalone/.next/ && node server.js" ]
