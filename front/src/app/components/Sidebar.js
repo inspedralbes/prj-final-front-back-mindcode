@@ -5,12 +5,13 @@ const Sidebar = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
   const classDetails = useAuthStore((state) => state.class_details);
-
+  
   useEffect(() => {
-    if (classDetails && classDetails.language_info && classDetails.language_info !== languages) {
+    if (classDetails?.language_info && JSON.stringify(classDetails.language_info) !== JSON.stringify(languages)) {
       setLanguages(classDetails.language_info); 
     }
-  }, [classDetails, languages]); 
+  }, [classDetails]);
+  
   return (
     <div className="bg-gray-200 dark:bg-gray-800 text-black dark:text-white w-1/4 h-full p-4 border-r border-gray-300 dark:border-gray-700">
       <div className="text-center mb-6">
