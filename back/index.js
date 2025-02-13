@@ -493,19 +493,12 @@ app.put('/api/language/class', async (req, res) => {
     }
 });
 
-// get all languages from a class
-app.get("/api/class/languages", verifyTokenMiddleware, async (req, res) => {
-    const { class_id } = req.query;
-
-    if (!class_id) {
-        return res.status(400).json({ error: "Class ID is required" });
-    }
-
+// get all languages
+app.get("/api/language", verifyTokenMiddleware, async (req, res) => {
     try {
         const connection = await createConnection();
         const [rows] = await connection.execute(
-            "SELECT language FROM CLASS WHERE idclass = ?",
-            [class_id]
+            "SELECT * FROM LANGUAGE",
         );
         await connection.end();
 
@@ -513,10 +506,10 @@ app.get("/api/class/languages", verifyTokenMiddleware, async (req, res) => {
             return res.status(404).json({ error: "Class not found" });
         }
 
-        const language_info = JSON.parse(rows[0].language);
+        const language_info = rows.map(({ idlanguage, name }) => ({ idlanguage, name }));
         res
             .status(200)
-            .json({ count: language_info.length, languages: language_info });
+            .json( language_info );
     } catch (error) {
         console.error("Error fetching languages:", error);
         res.status(500).json({ error: "Internal server error" });

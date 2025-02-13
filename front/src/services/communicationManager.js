@@ -187,13 +187,10 @@ export async function sendMessage(body) {
 
 // Languages
 
-export async function getLanguage(class_id) {
+export async function getLanguages() {
   try {
-    if (!class_id) {
-      throw new Error('Class_id is required');
-    }
 
-    const response = await fetch(`${URL}/api/class/languages?class_id=${class_id}`, {
+    const response = await fetch(`${URL}/api/language`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -206,7 +203,7 @@ export async function getLanguage(class_id) {
     }
 
     const data = await response.json();
-    return data.languages;
+    return data;
   } catch (error) {
     console.error("Error en Communication Manager:", error);
     throw error;
