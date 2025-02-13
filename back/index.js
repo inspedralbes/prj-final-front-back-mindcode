@@ -121,7 +121,7 @@ app.post('/api/class', async (req, res) => {
 
 const mongoose = require('mongoose');
 
-const mongoPath = 'mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
+const mongoPath = 'mongodb+srv://<dbConnection>'; 
 
 const connectDB = async () => {
     try {
