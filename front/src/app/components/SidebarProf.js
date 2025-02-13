@@ -37,6 +37,29 @@ const SidebarProf = () => {
     }
   };
 
+  const handleDeleteLanguage = async (classId, langIndex) => {
+  try {
+    const languageName = languagesByClass[classId][langIndex]; 
+    
+    const allLanguages = await getLanguages();
+    const languageToDelete = allLanguages.find(lang => lang.name === languageName);
+    
+    if (!languageToDelete) {
+      console.error("Language ID not found for:", languageName);
+      return;
+    }
+
+    await deleteLanguage(languageToDelete.idlanguage);
+    setLanguagesByClass(prev => ({
+      ...prev,
+      [classId]: prev[classId].filter((_, index) => index !== langIndex)
+    }));
+  } catch (error) {
+    console.error("Error deleting language:", error);
+  }
+};
+
+
   return (
     <div className="bg-gray-200 dark:bg-gray-800 text-black dark:text-white w-1/4 h-full p-4 border-r border-gray-300 dark:border-gray-700">
       <div className="text-center mb-6">
