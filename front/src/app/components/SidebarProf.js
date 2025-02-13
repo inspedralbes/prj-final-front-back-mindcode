@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from "react";
-import { getLanguage, createLanguage } from "services/communicationManager.js";
+import { getLanguages, createLanguage } from "services/communicationManager.js";
 import { useAuthStore } from "../../stores/authStore";
 
 const SidebarProf = ({ classId }) => {
@@ -13,7 +13,7 @@ const SidebarProf = ({ classId }) => {
     async function fetchLanguages() {
       try {
         if (!classId) return;
-        const data = await getLanguage(classId);
+        const data = await getLanguages(classId);
         setLanguages(data);
       } catch (error) {
         console.error("Error fetching languages:", error);
