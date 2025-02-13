@@ -11,7 +11,6 @@ const SidebarProf = () => {
   const [editingLanguage, setEditingLanguage] = useState(null);
   const [editedLanguageName, setEditedLanguageName] = useState("");
 
-  // Obtener las clases del profesor desde el store global
   const class_info = useAuthStore((state) => state.class_info);
 
   useEffect(() => {
