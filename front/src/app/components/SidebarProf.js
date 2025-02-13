@@ -58,56 +58,82 @@ const SidebarProf = () => {
               </button>
 
               {openClassId === class_id && (
-                <div className="mt-1 space-y-1 pl-2">
-                  <button
-                    className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white"
-                    onClick={() => setIsLlenguatgesOpen(!isLlenguatgesOpen)}
-                  >
-                    📄 Llenguatges
-                  </button>
-                  {isLlenguatgesOpen && (
-                    <div className="ml-4 mt-2 space-y-2">
-                      {languagesByClass[class_id] && languagesByClass[class_id].length > 0 ? (
-                        languagesByClass[class_id].map((lang, index) => (
-                          <div key={index} className="flex items-center gap-2">
+              <div className="mt-1 space-y-1 pl-2">
+                <button
+                  className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white"
+                  onClick={() => setIsLlenguatgesOpen(!isLlenguatgesOpen)}
+                >
+                  📄 Llenguatges
+                </button>
+                {isLlenguatgesOpen && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    {languagesByClass[class_id] && languagesByClass[class_id].length > 0 ? (
+                      languagesByClass[class_id].map((lang, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          {editingLanguage && editingLanguage.classId === class_id && editingLanguage.langIndex === index ? (
+                            <input
+                              type="text"
+                              value={editedLanguageName}
+                              onChange={(e) => setEditedLanguageName(e.target.value)}
+                              className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                            />
+                          ) : (
                             <button className="w-3/4 px-3 py-2 bg-green-500 hover:bg-green-700 rounded-md text-white">
                               {lang}
                             </button>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No hay lenguajes</p>
-                      )}
-                      {!showInput ? (
-                        <button
-                          className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2"
-                          onClick={() => setShowInput(true)}
-                        >
-                          ➕ Nuevo lenguaje
-                        </button>
-                      ) : (
-                        <div className="flex gap-2 mt-2">
-                          <input
-                            type="text"
-                            value={newLanguage}
-                            onChange={(e) => setNewLanguage(e.target.value)}
-                            className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
-                            placeholder="Lenguaje"
-                          />
-                          <button onClick={handleAddLanguage} className="px-1 py-1 bg-green-500 size-8 text-white rounded-md hover:bg-green-600 text-sm">
-                            ✅
-                          </button>
-                          <button onClick={() => { setShowInput(false); setNewLanguage(""); }} className="px-1 py-1 size-8 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
-                            ✖
+                          )}
+
+                          {editingLanguage && editingLanguage.classId === class_id && editingLanguage.langIndex === index ? (
+                            <button onClick={handleSaveEdit} className="px-1 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                              ✅
+                            </button>
+                          ) : (
+                            <button onClick={() => handleEditLanguage(class_id, index)} className="px-1 py-1  size-7 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-sm">
+                              ✏️
+                            </button>
+                          )}
+
+                          <button onClick={() => handleDeleteLanguage(class_id, index)} className="px-1 py-1 size-7  bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                          <span className="text-white">✖</span>
                           </button>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha llenguatges</p>
+                    )}
+                    {!showInput ? (
+                      <button
+                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2"
+                        onClick={() => setShowInput(true)}
+                      >
+                        ➕ Nou llenguatge
+                      </button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <input
+                          type="text"
+                          value={newLanguage}
+                          onChange={(e) => setNewLanguage(e.target.value)}
+                          className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                          placeholder="Llenguatge"
+                        />
+                        <button onClick={handleAddLanguage} className="px-1 py-1 bg-green-500 size-8 text-white rounded-md hover:bg-green-600 text-sm">
+                          ✅
+                        </button>
+                        <button onClick={() => { setShowInput(false); setNewLanguage(""); }} className="px-1 py-1 size-8 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                        <span className="text-white">✖</span>
+
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <button className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white">🎓​ Alumnes</button>
+                <button className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white">📊​ Estadístiques</button>
+              </div>
+            )}
+          </div>
+        ))
         ) : (
           <p className="text-sm text-gray-500 dark:text-gray-400">No tienes clases asignadas</p>
         )}
