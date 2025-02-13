@@ -5,7 +5,9 @@ import ShortUniqueId from 'short-unique-id';
 import admin from 'firebase-admin';
 import fs from 'fs';
 import cors from 'cors';
-// import { connection } from 'mongoose';
+import {login, verifyTokenMiddleware} from './tokens.js';
+import { CLIENT_RENEG_LIMIT } from 'tls';
+import { log } from 'console';
 
 dotenv.config();
 
@@ -49,6 +51,8 @@ async function createConnection() {
     }
 }
 
+
+
 async function testConnection() {
     const connection = await createConnection();
     try {
@@ -64,67 +68,9 @@ async function testConnection() {
 
 testConnection();
 
-app.post('/api/auth/google', async (req, res) => {
-    const { uid, name, gmail } = req.body;
 
-    if (!gmail.endsWith('@inspedralbes.cat')) {
-        return res.status(400).json({ error: 'Incorrect Credentials' });
-    }
-
-    const ltterNum = /^[a-zA-Z]\d/;
-    const ltterLtter = /^[a-zA-Z]{2}/;
-
-    if (!ltterLtter.test(gmail)) {
-        try {
-            const connection = await mysql.createConnection(dbConfig);
-            const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
-
-            if (rows.length === 0) {
-                await connection.execute(
-                    'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
-                    [uid, name, gmail, 0]
-                );
-                console.log('Nuevo usuario creado en la base de datos');
-            } else {
-                console.log('El usuario ya existe en la base de datos');
-            }
-
-            await connection.end();
-            res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
-        } catch (error) {
-            console.error('Error al verificar el UID de Google:', error);
-            res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
-        }
-    }
-    else if (!ltterNum.test(gmail)) {
-        try {
-            const connection = await mysql.createConnection(dbConfig);
-            const [rows] = await connection.execute('SELECT * FROM USER WHERE googleId = ?', [uid]);
-
-            if (rows.length === 0) {
-                await connection.execute(
-                    'INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)',
-                    [uid, name, gmail, 1]
-                );
-                console.log('Nuevo usuario creado en la base de datos');
-            } else {
-                console.log('El usuario ya existe en la base de datos');
-            }
-
-            await connection.end();
-            res.json({ message: 'Usuario autenticado correctamente', user: { name, gmail, googleId: uid } });
-        } catch (error) {
-            console.error('Error al verificar el UID de Google:', error);
-            res.status(400).json({ error: 'No se pudo verificar el UID de Google' });
-        }
-    }
-    else {
-        console.log("Incorrect Credentials");
-    }
-});
-
-app.post('/api/class', async (req, res) => {
-    const { name, teacher_id } = req.body;
+app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
+   const { name, teacher_id } = req.body;
 
   const language = "[]"; /* TODO: Add language array to class creation */
 
@@ -173,12 +119,15 @@ app.post('/api/class', async (req, res) => {
     }
 });
 
-app.post('/api/class/enroll', async (req, res) => {
-    const { class_code, user_id } = req.body;
+app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
+   const { class_code } = req.body;
+   const verified_user_id = req.verified_user_id
 
-    if (!class_code || !user_id) {
-        return res.status(400).json({ error: 'Class code and student ID are required' });
-    }
+  if (!class_code) {
+    return res
+      .status(400)
+      .json({ error: "Class code is required" });
+  }
 
     try {
         const connection = await createConnection();
@@ -202,7 +151,7 @@ app.post('/api/class/enroll', async (req, res) => {
                 const connection = await createConnection();
                 const [userRows] = await connection.execute(
                     'SELECT teacher FROM USER WHERE id = ?',
-                    [user_id]
+                    [verified_user_id]
                 );
                 await connection.end();
 
@@ -225,7 +174,7 @@ app.post('/api/class/enroll', async (req, res) => {
                     }
 
                     let teacher_ids = JSON.parse(classRows[0].teacher_id);
-                    teacher_ids.push(user_id);
+                    teacher_ids.push(verified_user_id);
 
                     const updateConnection = await createConnection();
                     await updateConnection.execute(
@@ -239,7 +188,7 @@ app.post('/api/class/enroll', async (req, res) => {
                     const connection = await createConnection();
                     await connection.execute(
                         'UPDATE USER SET class = ? WHERE id = ?',
-                        [class_id, user_id]
+                        [class_id, verified_user_id]
                     );
                     await connection.end();
                 }
@@ -601,7 +550,6 @@ const sendToAI = async (message, language, restriction) => {
   return aiResponse;
 };
 
-
 app.post('/api/auth/google', async (req, res) => {
     const { uid, name, gmail } = req.body;
 
@@ -668,11 +616,13 @@ app.post('/api/auth/google', async (req, res) => {
     //     };
     //   }
 
-    // await connection.end();
+    await connection.end();
+    const user = { id: userId };
+    const token = login(user, process.env.SECRET_KEY)
 
     res.json({
       message: "User authenticated correctly",
-      token: null, //jwt.sign()
+      token, 
       id: userId,
       name,
       gmail,
@@ -686,7 +636,7 @@ app.post('/api/auth/google', async (req, res) => {
   }
 });
 
-app.post("/api/language", async (req, res) => {
+app.post("/api/language", verifyTokenMiddleware, async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -708,7 +658,7 @@ app.post("/api/language", async (req, res) => {
   }
 });
 
-app.get("/api/class/languages", async (req, res) => {
+app.get("/api/class/languages", verifyTokenMiddleware, async (req, res) => {
   const { class_id } = req.query;
 
   if (!class_id) {
@@ -737,7 +687,7 @@ app.get("/api/class/languages", async (req, res) => {
   }
 });
 
-app.delete("/api/language", async (req, res) => {
+app.delete("/api/language", verifyTokenMiddleware, async (req, res) => {
   const { idlanguage } = req.body;
 
   if (!idlanguage) {
@@ -765,7 +715,7 @@ app.delete("/api/language", async (req, res) => {
   }
 });
 
-app.get("/api/user", async (req, res) => {
+app.get("/api/user", verifyTokenMiddleware, async (req, res) => {
   const { class_id } = req.query;
 
   if (!class_id) {

@@ -1,6 +1,10 @@
 import { cloneUniformsGroups } from "three/src/renderers/shaders/UniformsUtils";
+import { useAuthStore } from "../stores/authStore"
 
 const URL = process.env.NEXT_PUBLIC_URL;
+
+const user_info = useAuthStore.getState().user_info
+const class_details = useAuthStore.getState().class_details
 
 export async function loginGoogle(uid,name,gmail){
   if(!uid | !name | !gmail){
@@ -17,12 +21,14 @@ export async function loginGoogle(uid,name,gmail){
 
   const data = await response.json();
 
-  console.log(data);
+  console.log();
   
 
     if (!data) {
       throw new Error("Respuesta vacía del servidor");
     }
+
+    
     return {
       hasClass: data.class_id !== null, 
       userData: data,
@@ -61,20 +67,26 @@ export async function createClass(name, teacher_id) {
   };
 
 
-  export async function joinClass(class_code, user_id) {
+  export async function joinClass(class_code) {
     try {
-        if (!class_code || !user_id) {
-            throw new Error('Class_code and user_id are required');
+        if (!class_code) {
+            throw new Error('Class_code required');
         }
 
-        console.log("Attempting to join class with:", { class_code, user_id });
+        const user_info = useAuthStore.getState().user_info;
+        if (!user_info || !user_info.token) {
+            throw new Error('Usuario no autenticado');
+        }
+
+        console.log("Attempting to join class with:", { class_code });
 
         const response = await fetch(`${URL}/api/class/enroll`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${user_info.token}`,
             },
-            body: JSON.stringify({class_code, user_id}),
+            body: JSON.stringify({ class_code }),
         });
 
         console.log("Server Response:", response);
@@ -86,6 +98,12 @@ export async function createClass(name, teacher_id) {
 
         const data = await response.json();
         console.log("Join class success:", data);
+
+        if (data && data.class_details) {
+            useAuthStore.getState().setClass(data.class_details);
+            console.log("Class details saved in store:", data.class_details);
+        }
+
         return data;
     } catch (error) {
         console.error("Error in Communication Manager:", error);
@@ -190,11 +208,7 @@ export async function getStudents(class_id) {
     const data = await response.json()
     return data;
   }
-
- 
-    
-    
-    
+  
 // Languages
 
 export async function createLanguage(name) {

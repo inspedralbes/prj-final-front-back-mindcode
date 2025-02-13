@@ -1,20 +1,21 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 const useAuthStore = create(
   persist(
-    (set) => ({
-      userId: null, 
-      role: null, 
-      gmail:null,
-      setUser: (userId, role,email) => set({ userId, role, gmail }),
-      logout: () => set({ userId: null, role: null, gmail: null }),
+    (set, get) => ({
+      user_info: null,
+      class_details: null,
+      testValue: 12341234,
+      setUser: (user_info) => set({ user_info }),
+      setClass: (class_details) => set({ class_details }),
+      logout: () => set({ user_info: null }, {class_details: null}), 
     }),
     {
       name: "auth-storage", 
-      getStorage: () => localStorage, 
+      storage: createJSONStorage(() => sessionStorage), 
     }
   )
 );
 
-export default useAuthStore;
+export { useAuthStore };

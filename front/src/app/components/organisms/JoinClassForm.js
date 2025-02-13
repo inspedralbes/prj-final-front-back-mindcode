@@ -4,21 +4,21 @@ import React, { useState } from "react";
 import { joinClass } from "../../../services/communicationManager"; // Import joinClass function
 import BaseForm from "../molecules/BaseForm";
 import { useRouter } from 'next/navigation';
+ 
 
 
 const JoinClassForm = ({  }) => {
     const router = useRouter();
     const [classCode, setClassCode] = useState(""); // Add state for class code
-    const [userId, setUserId] = useState(""); // Add state for user ID
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const topText = "Uneix-te a una classe existent"
 
     const handleJoin = async () => {
-        if ( classCode && userId) {
+        if ( classCode) {
           try {
             console.log("Attempting to join class...");
-            const response = await joinClass(classCode, userId);
+            const response = await joinClass(classCode);
             console.log("Join class response:", response);
     
             if (response.class_details) {
@@ -43,8 +43,7 @@ const JoinClassForm = ({  }) => {
         <div className="flex-1 flex">
           <BaseForm topText={topText} sendButtonText={"Join Class"} onSendButtonClick={handleJoin} formValues={
             [
-              {placeholder: "Class Code", text: classCode, handleOnChange: (e) => setClassCode(e.target.value)},
-              {placeholder: "User Id", text: userId, handleOnChange: (e) => setUserId(e.target.value)},
+              {placeholder: "Class Code", text: classCode, handleOnChange: (e) => setClassCode(e.target.value)}
             ]
           } />
            
