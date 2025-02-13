@@ -128,6 +128,7 @@ jobs:
           echo "DB_USER=${{ secrets.MYSQL_ROOT_USER }}" >> .env
           echo "DB_PORT=${{ secrets.MYSQL_PORT }}" >> .env
           echo "DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "DB_DATABASE=mindcode" >> .env
           echo "DB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env          
           echo "AI_HOST=${{ secrets.AI_HOST }}" >> .env
 
