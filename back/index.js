@@ -68,6 +68,44 @@ async function testConnection() {
 
 testConnection();
 
+app.get('/api/class', async (req, res) => {
+    const { class_id } = req.query;
+  
+    try {
+        const connection = await createConnection();
+        
+        let query = "SELECT idclass, name, teacher_id, language, code FROM CLASS";
+        let params = [];
+  
+        if (class_id) {
+            query += " WHERE idclass = ?";
+            params.push(class_id);
+        }
+  
+        const [rows] = await connection.execute(query, params);
+        await connection.end();
+  
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Class not found" });
+        }
+  
+        const classes = rows.map(classItem => ({
+            class_id: classItem.idclass,
+            name: classItem.name,
+            teacher_id: JSON.parse(classItem.teacher_id),
+            language: JSON.parse(classItem.language),
+            class_code: classItem.code
+        }));
+  
+        res.status(200).json(class_id ? classes[0] : classes);
+    } catch (error) {
+        console.error("Error fetching class information:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  
+
 // login/register with google
 app.post('/api/auth/google', async (req, res) => {
     const { uid, name, gmail } = req.body;

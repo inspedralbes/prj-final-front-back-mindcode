@@ -79,6 +79,19 @@ export async function createClass(name) {
   }
 };
 
+export async function getClass(class_id) {
+  try {
+      const url = `${URL}/api/class`;
+      const response = await fetch(url);
+
+      if (!response.ok) throw new Error(`Error getting class data: ${await response.text()}`);
+
+      return await response.json();
+  } catch (error) {
+      console.error("Error in getClass:", error);
+      throw error;
+  }
+}
 
 export async function joinClass(class_code) {
   try {
@@ -123,6 +136,26 @@ export async function joinClass(class_code) {
     throw error;
   }
 }
+
+export async function chargeMessage(userId) {
+    try {
+        const response = await fetch(`${URL}/messages?userId=${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Error al cargar los mensajes');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error al cargar los mensajes:", error);
+        throw error;
+    }
+}
+
 
 export async function getMessagesById() {
   try {
