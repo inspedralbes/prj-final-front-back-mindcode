@@ -14,12 +14,7 @@
             "description": "Student successfully enrolled in class",
             "body": {
                 "message": "Student has been successfully enrolled in the class",
-                "class_details": {
-                    "class_id": "string",
-                    "language_info": "string",
-                    "teacher_info": "string",
-                    "classmate_info": "string"
-                }
+                "class_info": ["object"]
             }
         },
         "400": {

@@ -5,14 +5,14 @@ const URL = process.env.NEXT_PUBLIC_URL;
 const Sidebar = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
-  const classDetails = useAuthStore((state) => state.class_details);
+  const classInfo = useAuthStore((state) => state.class_info[0]);
   const user_info = useAuthStore.getState().user_info
   
   useEffect(() => {
-    if (classDetails?.language_info && JSON.stringify(classDetails.language_info) !== JSON.stringify(languages)) {
-      setLanguages(classDetails.language_info); 
+    if (classInfo?.language_info && JSON.stringify(classInfo.language_info) !== JSON.stringify(languages)) {
+      setLanguages(classInfo.language_info); 
     }
-  }, [classDetails]);
+  }, [classInfo]);
 
   const handleLanguageClick = async (language, index) => {
   console.log("Lenguaje seleccionado:", language);

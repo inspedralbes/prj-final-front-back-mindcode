@@ -11,7 +11,7 @@
             "type": "array",
             "description": "Array of language objects",
             "items": {
-                "type": "object",
+                "type": "array",
                 "properties": {
                     "id": {
                         "type": "integer",

@@ -3,28 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import {googleLogin} from '../../services/firebase';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '../../stores/authStore';
 
 const Signup = () => {
   const [hydrated, setHydrated] = useState(false)
-  const setUser  = useAuthStore((state) => state.setUser);
-  const value = useAuthStore((state) => state.testValue)
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
     try {
       const userData = await googleLogin();
 
-      if (!userData) return; 
+      if (!userData) return;
 
       const userDataParsed = userData.userData
-      console.log("setting user info with this info: ", {userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
-      setUser({userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
-
-      if (userData.hasClass) {
-        router.push('/StPage'); 
+      if (userDataParsed.teacher == 1) {
+        if (userData.hasClass) {
+          router.push('/PfPage');
+        } else {
+          router.push('/CreateClass');
+        }
       } else {
-        router.push('/JoinClass'); 
+
+        if (userData.hasClass) {
+          router.push('/StPage');
+        } else {
+          router.push('/JoinClass');
+        }
       }
     } catch (error) {
       console.error('Error en el login:', error);
@@ -76,17 +79,17 @@ const Signup = () => {
        </div>
 
 
-       <div className="flex-1 bg-black text-center hidden lg:flex">
-         <div
-           className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-           style={{
-             backgroundImage: `url('/IA.png')`,
-           }}
-         ></div>
-       </div>
-     </div>
-   </div>
- );
+        <div className="flex-1 bg-black text-center hidden lg:flex">
+          <div
+            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('/IA.png')`,
+            }}
+          ></div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 
