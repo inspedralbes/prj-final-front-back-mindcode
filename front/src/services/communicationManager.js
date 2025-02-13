@@ -79,19 +79,19 @@ export async function createClass(name) {
   }
 };
 
-export async function getClass(class_id) {
-  try {
-      const url = `${URL}/api/class`;
-      const response = await fetch(url);
+// export async function getClass(class_id) {
+//   try {
+//       const url = `${URL}/api/class`;
+//       const response = await fetch(url);
 
-      if (!response.ok) throw new Error(`Error getting class data: ${await response.text()}`);
+//       if (!response.ok) throw new Error(`Error getting class data: ${await response.text()}`);
 
-      return await response.json();
-  } catch (error) {
-      console.error("Error in getClass:", error);
-      throw error;
-  }
-}
+//       return await response.json();
+//   } catch (error) {
+//       console.error("Error in getClass:", error);
+//       throw error;
+//   }
+// }
 
 export async function joinClass(class_code) {
   try {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getClass, createLanguage, deleteLanguage } from "services/communicationManager.js";
+import {createLanguage, deleteLanguage } from "services/communicationManager.js";
+import { useAuthStore } from "../../stores/authStore"
+
 
 const SidebarProf = () => {
   const [classList, setClassList] = useState([]);
@@ -10,6 +12,7 @@ const SidebarProf = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState(null);
   const [editedLanguageName, setEditedLanguageName] = useState("");
+  const class_info = useAuthStore((state) => state.class_info)
 
   useEffect(() => {
     async function fetchClasses() {
@@ -22,6 +25,11 @@ const SidebarProf = () => {
     }
     fetchClasses();
   }, []);
+
+  useEffect(() => {
+    if(class_info)
+    console.log(class_info)
+  }, [class_info])
 
   const handleClassClick = (class_id) => {
     setOpenClassId(openClassId === class_id ? null : class_id);
