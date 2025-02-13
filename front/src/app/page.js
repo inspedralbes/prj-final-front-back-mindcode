@@ -3,6 +3,8 @@
 "use client"
 
 import React, { useState } from "react"
+import "./globals.css";
+
 import StPage from "./StPage/page";
 import PfPage from "./PfPage/page";
 import Login from "./Login/page";

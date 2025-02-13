@@ -111,7 +111,7 @@ export async function createClass(name, teacher_id) {
     }
 }
 
-export async function chargeMessage(userId) {
+export async function getMessagesById(userId) {
     try {
         const response = await fetch(`${URL}/messages?userId=${userId}`, {
             method: 'GET',

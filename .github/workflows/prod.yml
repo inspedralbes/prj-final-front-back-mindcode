@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying MindCode on PRODUCTION ⭐
 on:
   push:
     branches:
-      - feature-create-docker-production
+      - main
 
 jobs:
   STOP-DOCKER:
@@ -40,11 +40,15 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "rm -f ./mindcode/compose.production.yaml"
 
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_USER=${{ secrets.MYSQL_USER }}' > ./mindcode/.env"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}' >> ./mindcode/.env"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}' >> ./mindcode/.env"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}' >> ./mindcode/.env"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "echo 'MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}' >> ./mindcode/.env"
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}}" > .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> .env
+          echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env        
+          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
+          echo "NEXT_PUBLIC_API_KEY=${{ secrets.PRODUCTION_FIREBASE_KEY }}" >> .env
+
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/
 
 
 
@@ -86,9 +90,12 @@ jobs:
           chmod 600 ~/prod_key.pem
           cd ${{ github.workspace }}
           cd front
+
           touch .env
 
-          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" >> .env
+          echo "NEXT_PUBLIC_URL=${{ secrets.PRODUCTION_API_URI }}" > .env
+          echo "NEXT_PUBLIC_API_KEY=${{ secrets.PRODUCTION_FIREBASE_KEY }}" >> .env
+
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/front ] 
                                                                                                                                               then
@@ -131,7 +138,8 @@ jobs:
                                                                                                                                               fi"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir ./mindcode/back"
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./* ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/front
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" -r ./.env ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:./mindcode/back
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "cp ./serviceaccount/serviceaccount.json ./mindcode/back/serviceaccount.json"
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
@@ -143,6 +151,9 @@ jobs:
         run: |
           echo "${{ secrets.PROD_SECRET_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "docker network inspect mindcode-network >/dev/null 2>&1 || docker network create --driver bridge mindcode-network"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "docker compose -f ./mindcode/compose.yaml build"
+
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "docker compose -f ./mindcode/compose.yaml up -d "
       - name: Iniciar Portainer
         run: |
