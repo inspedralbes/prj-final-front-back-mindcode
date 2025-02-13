@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { getLanguage, createLanguage } from "services/communicationManager.js";
+import { useAuthStore } from "../../stores/authStore";
 
 const SidebarProf = ({ classId }) => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
   const [newLanguage, setNewLanguage] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const classInfo = useAuthStore((state) => state.class_info);
 
   useEffect(() => {
     async function fetchLanguages() {

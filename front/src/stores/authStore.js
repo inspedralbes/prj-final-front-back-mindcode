@@ -6,7 +6,6 @@ const useAuthStore = create(
     (set, get) => ({
       user_info: null,
       class_info: null,
-      testValue: 12341234,
       setUser: (user_info) => set({ user_info }),
       setClass: (class_info) => set({ class_info }),
       logout: () => set({ user_info: null }, {class_info: null}), 

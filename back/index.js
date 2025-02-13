@@ -68,14 +68,88 @@ async function testConnection() {
 
 testConnection();
 
+// login/register with google
+app.post('/api/auth/google', async (req, res) => {
+    const { uid, name, gmail } = req.body;
+
+    if (!gmail.endsWith('@inspedralbes.cat')) {
+        return res.status(400).json({ error: 'Incorrect Credentials' });
+    }
+
+    const ltterLtter = /^[a-zA-Z]{2}/;
+
+
+    let teacher = 0;
+
+    if (ltterLtter.test(gmail)) {
+        teacher = 1;
+    }
+
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            "SELECT * FROM USER WHERE googleId = ?",
+            [uid]
+        );
+
+        let userId;
+        let classId = null;
+        let class_info = [];
+
+
+        if (rows.length === 0) { // user doesn't exist
+            const [result] = await connection.execute(
+                "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
+                [uid, name, gmail, teacher]
+            );
+            userId = result.insertId;
+
+            console.log("New user created in the database");
+        } else { // user exists
+            console.log("User already exists in the database");
+
+            userId = rows[0].id;
+            classId = rows[0].class;
+            teacher = rows[0].teacher;
+
+            if (teacher === 1) { // teacher
+                class_info = await getClassesInfoWithTeacher(userId);
+            } else { // student
+                if (classId) {
+                    class_info.push(await getClassInfo(classId));
+                }
+            }
+        }
+
+        await connection.end();
+        const user = { id: userId };
+        const token = login(user, process.env.SECRET_KEY)
+
+        res.json({
+            message: "User authenticated correctly",
+            token,
+            id: userId,
+            name,
+            gmail,
+            teacher,
+            class_id: class_info ? class_info.class_id : null,
+            class_info: class_info
+        });
+    } catch (error) {
+        console.error("Authenticated failed:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
 // create a class
 app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
-    const { name, teacher_id } = req.body;
+    const { name } = req.body;
     const verified_user_id = req.verified_user_id;
 
     const language = "[]"; /* TODO: Add language array to class creation */
 
-    if (!name || !teacher_id) {
+    if (!name || !verified_user_id) {
         return res.status(400).json({ error: 'Class name and teacher ID are required' });
     }
 
@@ -84,7 +158,7 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
         const connection = await createConnection();
         const [rows] = await connection.execute(
             'SELECT id FROM USER WHERE id = ? AND teacher = "1"',
-            [teacher_id]
+            [verified_user_id]
         );
         await connection.end();
 
@@ -108,12 +182,12 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
         const connection = await createConnection();
         const [result] = await connection.execute(
             'INSERT INTO CLASS (name, teacher_id, language, code) VALUES (?, ?, ?, ?)',
-            [name, JSON.stringify([teacher_id]), language, class_code]
+            [name, JSON.stringify([verified_user_id]), language, class_code]
         );
         await connection.end();
 
-
-        res.status(201).json({ class_id: result.insertId, name, teacher_id, language, class_code });
+        const class_info = await getClassesInfoWithTeacher(verified_user_id);
+        res.status(201).json(class_info);
     } catch (error) {
         console.error('Error creating class:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -163,6 +237,8 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
 
                 const isTeacher = userRows[0].teacher === 1;
 
+                let class_info = [];
+
                 if (isTeacher) {
                     const connection = await createConnection();
                     const [classRows] = await connection.execute(
@@ -176,14 +252,20 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
                     }
 
                     let teacher_ids = JSON.parse(classRows[0].teacher_id);
-                    teacher_ids.push(verified_user_id);
 
-                    const updateConnection = await createConnection();
-                    await updateConnection.execute(
-                        'UPDATE CLASS SET teacher_id = ? WHERE idclass = ?',
-                        [JSON.stringify(teacher_ids), class_id]
-                    );
-                    await updateConnection.end();
+                    if (!teacher_ids.includes(verified_user_id)) {
+                        teacher_ids.push(verified_user_id);
+
+
+                        const updateConnection = await createConnection();
+                        await updateConnection.execute(
+                            'UPDATE CLASS SET teacher_id = ? WHERE idclass = ?',
+                            [JSON.stringify(teacher_ids), class_id]
+                        );
+                        await updateConnection.end();
+                    }
+
+                    class_info = await getClassesInfoWithTeacher(verified_user_id);
 
                 } else {
 
@@ -193,14 +275,11 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
                         [class_id, verified_user_id]
                     );
                     await connection.end();
+
+                    class_info.push(await getClassInfo(class_id));
                 }
 
-
-                const { name, language_info, teacher_info, classmate_info } = await getClassInfo(class_id);
-
-
-                const class_details = { name, class_id, language_info, teacher_info, classmate_info };
-                res.json({ message: 'Student has been successfully enrolled in the class', class_details });
+                res.json({ message: 'Successfully enrolled in the class', class_info });
 
             } catch (error) {
                 console.error('Error adding student to class:', error);
@@ -414,86 +493,6 @@ app.put('/api/language/class', async (req, res) => {
     }
 });
 
-// login/register with google
-app.post('/api/auth/google', async (req, res) => {
-    const { uid, name, gmail } = req.body;
-
-    if (!gmail.endsWith('@inspedralbes.cat')) {
-        return res.status(400).json({ error: 'Incorrect Credentials' });
-    }
-
-    const ltterNum = /^[a-zA-Z]\d/;
-    const ltterLtter = /^[a-zA-Z]{2}/;
-
-
-    let teacher = 0;
-
-    if (ltterLtter.test(gmail)) {
-        teacher = 1;
-    }
-
-    try {
-        const connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute(
-            "SELECT * FROM USER WHERE googleId = ?",
-            [uid]
-        );
-
-        let userId;
-        let classId = null;
-        let class_info = [];
-
-
-        if (rows.length === 0) { // user doesn't exist
-            const [result] = await connection.execute(
-                "INSERT INTO USER (googleId, name, gmail, teacher) VALUES (?, ?, ?, ?)",
-                [uid, name, gmail, teacher]
-            );
-            userId = result.insertId;
-
-            console.log("New user created in the database");
-        } else { // user exists
-            console.log("User already exists in the database");
-
-            userId = rows[0].id;
-            classId = rows[0].class;
-            teacher = rows[0].teacher;
-
-            if (teacher === 1) { // teacher
-                const classesWithTeacher = await getClassesWithTeacher(userId);
-
-                if (classesWithTeacher.length > 0) {
-                    for (const classId of classesWithTeacher) {
-                        class_info.push(await getClassInfo(classId));
-                    }
-                }
-            } else { // student
-                if (classId) {
-                    class_info.push(await getClassInfo(classId));
-                }
-            }
-        }
-
-        await connection.end();
-        const user = { id: userId };
-        const token = login(user, process.env.SECRET_KEY)
-
-        res.json({
-            message: "User authenticated correctly",
-            token,
-            id: userId,
-            name,
-            gmail,
-            teacher,
-            class_id: class_info ? class_info.class_id : null,
-            class_info: class_info
-        });
-    } catch (error) {
-        console.error("Authenticated failed:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-
 // get all languages from a class
 app.get("/api/class/languages", verifyTokenMiddleware, async (req, res) => {
     const { class_id } = req.query;
@@ -575,6 +574,18 @@ app.get("/api/class/user", verifyTokenMiddleware, async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+async function getClassesInfoWithTeacher(user_id) {
+    const classesWithTeacher = await getClassesWithTeacher(user_id);
+    let class_info = [];
+    if (classesWithTeacher.length > 0) {
+        for (const classId of classesWithTeacher) {
+            class_info.push(await getClassInfo(classId));
+        }
+        console.log(class_info);
+    }
+    return class_info;
+}
 
 function getClassesWithTeacher(user_id) {
     return new Promise(async (resolve, reject) => {

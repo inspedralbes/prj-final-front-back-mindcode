@@ -4,13 +4,13 @@ import { useAuthStore } from '../../stores/authStore';
 const Sidebar = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
-  const classDetails = useAuthStore((state) => state.class_details);
+  const classInfo = useAuthStore((state) => state.class_info[0]);
   
   useEffect(() => {
-    if (classDetails?.language_info && JSON.stringify(classDetails.language_info) !== JSON.stringify(languages)) {
-      setLanguages(classDetails.language_info); 
+    if (classInfo?.language_info && JSON.stringify(classInfo.language_info) !== JSON.stringify(languages)) {
+      setLanguages(classInfo.language_info); 
     }
-  }, [classDetails]);
+  }, [classInfo]);
   
   return (
     <div className="bg-gray-200 dark:bg-gray-800 text-black dark:text-white w-1/4 h-full p-4 border-r border-gray-300 dark:border-gray-700">

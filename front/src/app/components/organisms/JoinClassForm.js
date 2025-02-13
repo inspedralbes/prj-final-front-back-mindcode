@@ -4,13 +4,16 @@ import React, { useState } from "react";
 import { joinClass } from "../../../services/communicationManager"; // Import joinClass function
 import BaseForm from "../molecules/BaseForm";
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../../stores/authStore';
  
 
 
 const JoinClassForm = ({  }) => {
+    const userInfo = useAuthStore.getState();
     const router = useRouter();
     const [classCode, setClassCode] = useState(""); // Add state for class code
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+
 
     const topText = "Uneix-te a una classe existent"
 
@@ -21,8 +24,11 @@ const JoinClassForm = ({  }) => {
             const response = await joinClass(classCode);
             console.log("Join class response:", response);
     
-            if (response.class_details) {
-              setIsAuthenticated(true);
+            if (response.class_info) {
+              if (userInfo.role == 1)
+                router.push('/PfPage');
+              else
+                router.push('/StPage');
             } else {
               alert("Failed to join class. Please check your details.");
             }
@@ -36,7 +42,7 @@ const JoinClassForm = ({  }) => {
       };
     
       if (isAuthenticated) {
-        router.push('/StPage');
+        
       }
     return (
         

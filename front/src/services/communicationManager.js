@@ -44,10 +44,10 @@ export async function loginGoogle(uid, name, gmail) {
     throw error;
   }
 }
-export async function createClass(name, teacher_id) {
+export async function createClass(name) {
   try {
-    if (!name || !teacher_id) {
-      throw new Error('Name and teacher_id are required');
+    if (!name) {
+      throw new Error('Name is required');
     }
 
     const response = await fetch(`${URL}/api/class`, {
@@ -56,7 +56,7 @@ export async function createClass(name, teacher_id) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${user_info.token}`,
       },
-      body: JSON.stringify({ name, teacher_id }),
+      body: JSON.stringify({ name }),
     });
     console.log(response)
     if (!response.ok) {

@@ -8,23 +8,19 @@ import { useRouter } from 'next/navigation';
 const CreateClassForm = ({ }) => {
     const router = useRouter();
     const [className, setClassName] = useState(""); // Add state for class name
-    const [userId, setUserId] = useState(""); // Add state for user ID
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const topText = "Crea una nova Classe"
 
 
     const handleCreate = async () => {
-        if (className && userId) {
+        if (className) {
             try {
                 console.log("Attempting to create class...");
-                const response = await createClass(className, userId);
+                const response = await createClass(className);
                 console.log("Create class response:", response);
-
-                console.log(response.class_code);
-
                 if (response) {
-                    setIsAuthenticated(true);
+                        router.push('/PfPage');
                 } else {
                     alert("Failed to create class. Please check your details.");
                 }
@@ -37,9 +33,7 @@ const CreateClassForm = ({ }) => {
         }
     };
 
-    if (isAuthenticated) {
-       router.push('/StPage');
-    }
+    
 
     return (
         <div className="flex-1 flex">
