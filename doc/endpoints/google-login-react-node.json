@@ -20,7 +20,7 @@
                 "gmail": "string",
                 "teacher": "integer",
                 "class_id": "integer",
-                "class_info": "object"
+                "class_info": ["object"]
             }
             
         },
