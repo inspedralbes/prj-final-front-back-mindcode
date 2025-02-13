@@ -6,31 +6,37 @@ const URL = process.env.NEXT_PUBLIC_URL;
 const user_info = useAuthStore.getState().user_info
 const class_details = useAuthStore.getState().class_details
 
-export async function loginGoogle(uid,name,gmail){
-  if(!uid | !name | !gmail){
+// const setUser = useAuthStore((state) => state.setUser);
+// const setClass = useAuthStore((state) => state.setClass);
+
+export async function loginGoogle(uid, name, gmail) {
+  if (!uid | !name | !gmail) {
     throw new Error('Uid,name and gmail are required');
   }
-  try{
+  try {
     const response = await fetch(`${URL}/api/auth/google`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ uid, name, gmail })
-  });
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  console.log();
-  
-
+    if (data) {
+      console.log("setting user info with this info: ", { userId: data.id, role: data.teacher, gmail: data.gmail, token: data.token, name: data.name });
+      useAuthStore.getState().setUser({ userId: data.id, role: data.teacher, gmail: data.gmail, token: data.token, name: data.name });
+      if (data.class_info) {
+        useAuthStore.getState().setClass(data.class_info);
+        console.log("Class details saved in store:", data.class_info);
+      }
+    }
     if (!data) {
       throw new Error("Respuesta vacía del servidor");
     }
-
-    
     return {
-      hasClass: data.class_id !== null, 
+      hasClass: data.class_info.length !== 0,
       userData: data,
     };
   } catch (error) {
@@ -39,176 +45,186 @@ export async function loginGoogle(uid,name,gmail){
   }
 }
 export async function createClass(name, teacher_id) {
-    try {
-      if (!name || !teacher_id) {
-        throw new Error('Name and teacher_id are required');
-      }
-  
-      const response = await fetch(`${URL}/api/class`,{
+  try {
+    if (!name || !teacher_id) {
+      throw new Error('Name and teacher_id are required');
+    }
+
+    const response = await fetch(`${URL}/api/class`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`,
       },
-      body: JSON.stringify({name, teacher_id}),
+      body: JSON.stringify({ name, teacher_id }),
     });
-      console.log(response)
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error getting data from classes: ${errorText}`);
-      }
-  
-      const data = await response.json();
-      console.log(data);
-      return data;
-    } catch (error) {
-      console.error("Communication Manager error:", error);
-      throw error;
+    console.log(response)
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error getting data from classes: ${errorText}`);
     }
-  };
 
+    const data = await response.json();
+    console.log(data);
 
-  export async function joinClass(class_code) {
-    try {
-        if (!class_code) {
-            throw new Error('Class_code required');
-        }
-
-        const user_info = useAuthStore.getState().user_info;
-        if (!user_info || !user_info.token) {
-            throw new Error('Usuario no autenticado');
-        }
-
-        console.log("Attempting to join class with:", { class_code });
-
-        const response = await fetch(`${URL}/api/class/enroll`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${user_info.token}`,
-            },
-            body: JSON.stringify({ class_code }),
-        });
-
-        console.log("Server Response:", response);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server error: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log("Join class success:", data);
-
-        if (data && data.class_details) {
-            useAuthStore.getState().setClass(data.class_details);
-            console.log("Class details saved in store:", data.class_details);
-        }
-
-        return data;
-    } catch (error) {
-        console.error("Error in Communication Manager:", error);
-        throw error;
+    if (data && data.class_info) {
+      useAuthStore.getState().setClass(data.class_info);
+      console.log("Class details saved in store:", data.class_info);
     }
+
+    return data;
+  } catch (error) {
+    console.error("Communication Manager error:", error);
+    throw error;
+  }
+};
+
+
+export async function joinClass(class_code) {
+  try {
+    if (!class_code) {
+      throw new Error('Class_code required');
+    }
+
+    const user_info = useAuthStore.getState().user_info;
+    if (!user_info || !user_info.token) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    console.log("Attempting to join class with:", { class_code });
+
+    const response = await fetch(`${URL}/api/class/enroll`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`,
+      },
+      body: JSON.stringify({ class_code }),
+    });
+
+    console.log("Server Response:", response);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Server error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("Join class success:", data);
+
+    if (data && data.class_info) {
+      useAuthStore.getState().setClass(data.class_info);
+      console.log("Class details saved in store:", data.class_info);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
 }
 
-export async function getMessagesById(userId) {
-    try {
-        const response = await fetch(`${URL}/messages?userId=${userId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        if (!response.ok) {
-            throw new Error('Error al cargar los mensajes');
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error al cargar los mensajes:", error);
-        throw error;
+export async function getMessagesById() {
+  try {
+    const response = await fetch(`${URL}/messages`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${user_info.token}`,
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Error al cargar los mensajes');
     }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al cargar los mensajes:", error);
+    throw error;
+  }
 }
 
 
 export async function sendMessage(body) {
-    console.log("New Message", body)
-    try {
-        console.log("mensaje a: ",URL)
-        const response = await fetch(`${URL}/message/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: body.text })
-        });
-
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            throw new Error(`Error ${response.status}: ${errorResponse.description || 'Invalid request'}`);
-        }
-
-        const responseData = await response.json();
-        return responseData;
-    } catch (error) {
-        console.error("Fetch error", error);
-        throw error;
-    }
-}
-
-export async function getStudents(class_id) {
+  console.log("New Message", body)
   try {
-    const response = await fetch(`${URL}/api/user?class_id=${class_id}`);  
+    console.log("mensaje a: ", URL)
+    const response = await fetch(`${URL}/message/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${user_info.token}`,
+      },
+      body: JSON.stringify({ message: body.text })
+    });
+
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      const errorResponse = await response.json();
+      throw new Error(`Error ${response.status}: ${errorResponse.description || 'Invalid request'}`);
     }
-    const data = await response.json();
-    return data.body;  
+
+    const responseData = await response.json();
+    return responseData;
   } catch (error) {
-    console.error("Error fetching students:", error);
-    throw error;  
+    console.error("Fetch error", error);
+    throw error;
   }
 }
+
+// export async function getStudents(class_id) {
+//   try {
+//     const response = await fetch(`${URL}/api/class/user?class_id=${class_id}`);  
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     return data.body;  
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     throw error;  
+//   }
+// }
 
 // Languages
 
-    export async function getLanguage(class_id) {
-      try {
-        if (!class_id) {
-          throw new Error('Class_id is required');
-        }
-    
-        const response = await fetch(`${URL}/api/class/languages?class_id=${class_id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Error getting data from language: ${errorText}`);
-        }
-    
-        const data = await response.json();
-        return data.languages; 
-      } catch (error) {
-        console.error("Error en Communication Manager:", error);
-        throw error;
-      }
-    };
+export async function getLanguage(class_id) {
+  try {
+    if (!class_id) {
+      throw new Error('Class_id is required');
+    }
 
-    export const  deleteLanguage = async (idlanguage) => {
-      const response = await fetch(`${URL}/api/language/${idlanguage}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    const data = await response.json()
-    return data;
+    const response = await fetch(`${URL}/api/class/languages?class_id=${class_id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error getting data from language: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.languages;
+  } catch (error) {
+    console.error("Error en Communication Manager:", error);
+    throw error;
   }
-  
+};
+
+export const deleteLanguage = async (idlanguage) => {
+  const response = await fetch(`${URL}/api/language/${idlanguage}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${user_info.token}`,
+    }
+  })
+  const data = await response.json()
+  return data;
+}
+
 // Languages
 
 export async function createLanguage(name) {
@@ -221,6 +237,7 @@ export async function createLanguage(name) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`,
       },
       body: JSON.stringify({ name }),
     });
@@ -248,6 +265,7 @@ export async function updateLanguages(classId, languages) {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`,
       },
       body: JSON.stringify({ classId, languages }),
     });

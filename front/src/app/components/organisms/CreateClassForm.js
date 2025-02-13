@@ -46,7 +46,6 @@ const CreateClassForm = ({ }) => {
             <BaseForm topText={topText} sendButtonText={"Create Class"} onSendButtonClick={handleCreate} formValues={
                 [
                     { placeholder: "Class Name", text: className, handleOnChange: (e) => setClassName(e.target.value) },
-                    { placeholder: "User Id", text: userId, handleOnChange: (e) => setUserId(e.target.value) },
                 ]
             } />
         </div>

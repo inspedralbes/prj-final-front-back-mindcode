@@ -3,12 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import {googleLogin} from '../../services/firebase';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '../../stores/authStore';
 
 const Signup = () => {
   const [hydrated, setHydrated] = useState(false)
-  const setUser  = useAuthStore((state) => state.setUser);
-  const value = useAuthStore((state) => state.testValue)
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
@@ -18,10 +15,7 @@ const Signup = () => {
       if (!userData) return;
 
       const userDataParsed = userData.userData
-      console.log("setting user info with this info: ", {userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
-      setUser({userId: userDataParsed.id, role: userDataParsed.teacher, gmail: userDataParsed.gmail, token: userDataParsed.token, name: userDataParsed.name});
-
-      if (userData.userData.teacher == 1) {
+      if (userDataParsed.teacher == 1) {
         if (userData.hasClass) {
           router.push('/PfPage');
         } else {
