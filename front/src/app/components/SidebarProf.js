@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {createLanguage, deleteLanguage } from "services/communicationManager.js";
-import { useAuthStore } from "../../stores/authStore"
-
+import { createLanguage, deleteLanguage } from "services/communicationManager.js";
+import { useAuthStore } from "../../stores/authStore";
 
 const SidebarProf = () => {
-  const [classList, setClassList] = useState([]);
   const [openClassId, setOpenClassId] = useState(null);
   const [languagesByClass, setLanguagesByClass] = useState({});
   const [newLanguage, setNewLanguage] = useState("");
@@ -12,24 +10,13 @@ const SidebarProf = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState(null);
   const [editedLanguageName, setEditedLanguageName] = useState("");
-  const class_info = useAuthStore((state) => state.class_info)
+
+  // Obtener las clases del profesor desde el store global
+  const class_info = useAuthStore((state) => state.class_info);
 
   useEffect(() => {
-    async function fetchClasses() {
-      try {
-        const data = await getClass();
-        setClassList(data);
-      } catch (error) {
-        console.error("Error fetching classes:", error);
-      }
-    }
-    fetchClasses();
-  }, []);
-
-  useEffect(() => {
-    if(class_info)
-    console.log(class_info)
-  }, [class_info])
+    console.log("Clases en el store Zustand:", class_info);
+  }, [class_info]);
 
   const handleClassClick = (class_id) => {
     setOpenClassId(openClassId === class_id ? null : class_id);
@@ -51,29 +38,6 @@ const SidebarProf = () => {
     }
   };
 
-  const handleDeleteLanguage = (classId, langIndex) => {
-    setLanguagesByClass((prev) => ({
-      ...prev,
-      [classId]: prev[classId].filter((_, index) => index !== langIndex),
-    }));
-  };
-
-  const handleEditLanguage = (classId, langIndex) => {
-    setEditingLanguage({ classId, langIndex });
-    setEditedLanguageName(languagesByClass[classId][langIndex]);
-  };
-
-  const handleSaveEdit = () => {
-    const { classId, langIndex } = editingLanguage;
-    setLanguagesByClass((prev) => {
-      const updatedLanguages = [...prev[classId]];
-      updatedLanguages[langIndex] = editedLanguageName;
-      return { ...prev, [classId]: updatedLanguages };
-    });
-    setEditingLanguage(null);
-    setEditedLanguageName("");
-  };
-
   return (
     <div className="bg-gray-200 dark:bg-gray-800 text-black dark:text-white w-1/4 h-full p-4 border-r border-gray-300 dark:border-gray-700">
       <div className="text-center mb-6">
@@ -83,94 +47,70 @@ const SidebarProf = () => {
       </div>
 
       <nav className="space-y-2">
-        {classList.map(({ class_id, class_code }) => (
-          <div key={class_id}>
-            <button
-              className="w-full px-4 py-2 bg-gray-700 hover:bg-blue-500 text-white rounded-md flex justify-between items-center"
-              onClick={() => handleClassClick(class_id)}
-            >
-              {class_code} <span>▼</span>
-            </button>
+        {class_info && class_info.length > 0 ? (
+          class_info.map(({ class_id, name }) => (
+            <div key={class_id}>
+              <button
+                className="w-full px-4 py-2 bg-gray-700 hover:bg-blue-500 text-white rounded-md flex justify-between items-center"
+                onClick={() => handleClassClick(class_id)}
+              >
+                {name} <span>▼</span>
+              </button>
 
-            {openClassId === class_id && (
-              <div className="mt-1 space-y-1 pl-2">
-                <button
-                  className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white"
-                  onClick={() => setIsLlenguatgesOpen(!isLlenguatgesOpen)}
-                >
-                  📄 Llenguatges
-                </button>
-                {isLlenguatgesOpen && (
-                  <div className="ml-4 mt-2 space-y-2">
-                    {languagesByClass[class_id] && languagesByClass[class_id].length > 0 ? (
-                      languagesByClass[class_id].map((lang, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          {editingLanguage && editingLanguage.classId === class_id && editingLanguage.langIndex === index ? (
-                            <input
-                              type="text"
-                              value={editedLanguageName}
-                              onChange={(e) => setEditedLanguageName(e.target.value)}
-                              className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
-                            />
-                          ) : (
+              {openClassId === class_id && (
+                <div className="mt-1 space-y-1 pl-2">
+                  <button
+                    className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white"
+                    onClick={() => setIsLlenguatgesOpen(!isLlenguatgesOpen)}
+                  >
+                    📄 Llenguatges
+                  </button>
+                  {isLlenguatgesOpen && (
+                    <div className="ml-4 mt-2 space-y-2">
+                      {languagesByClass[class_id] && languagesByClass[class_id].length > 0 ? (
+                        languagesByClass[class_id].map((lang, index) => (
+                          <div key={index} className="flex items-center gap-2">
                             <button className="w-3/4 px-3 py-2 bg-green-500 hover:bg-green-700 rounded-md text-white">
                               {lang}
                             </button>
-                          )}
-
-                          {editingLanguage && editingLanguage.classId === class_id && editingLanguage.langIndex === index ? (
-                            <button onClick={handleSaveEdit} className="px-1 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
-                              ✅
-                            </button>
-                          ) : (
-                            <button onClick={() => handleEditLanguage(class_id, index)} className="px-1 py-1  size-7 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-sm">
-                              ✏️
-                            </button>
-                          )}
-
-                          <button onClick={() => handleDeleteLanguage(class_id, index)} className="px-1 py-1 size-7  bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
-                          <span className="text-white">✖</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No hay lenguajes</p>
+                      )}
+                      {!showInput ? (
+                        <button
+                          className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2"
+                          onClick={() => setShowInput(true)}
+                        >
+                          ➕ Nuevo lenguaje
+                        </button>
+                      ) : (
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            type="text"
+                            value={newLanguage}
+                            onChange={(e) => setNewLanguage(e.target.value)}
+                            className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                            placeholder="Lenguaje"
+                          />
+                          <button onClick={handleAddLanguage} className="px-1 py-1 bg-green-500 size-8 text-white rounded-md hover:bg-green-600 text-sm">
+                            ✅
+                          </button>
+                          <button onClick={() => { setShowInput(false); setNewLanguage(""); }} className="px-1 py-1 size-8 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                            ✖
                           </button>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha llenguatges</p>
-                    )}
-                    {!showInput ? (
-                      <button
-                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-2"
-                        onClick={() => setShowInput(true)}
-                      >
-                        ➕ Nou llenguatge
-                      </button>
-                    ) : (
-                      <div className="flex gap-2 mt-2">
-                        <input
-                          type="text"
-                          value={newLanguage}
-                          onChange={(e) => setNewLanguage(e.target.value)}
-                          className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
-                          placeholder="Llenguatge"
-                        />
-                        <button onClick={handleAddLanguage} className="px-1 py-1 bg-green-500 size-8 text-white rounded-md hover:bg-green-600 text-sm">
-                          ✅
-                        </button>
-                        <button onClick={() => { setShowInput(false); setNewLanguage(""); }} className="px-1 py-1 size-8 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
-                        <span className="text-white">✖</span>
-
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-                <button className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white">🎓​ Alumnes</button>
-                <button className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-md text-white">📊​ Estadístiques</button>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {classList.length === 0 && <p className="text-sm text-gray-500 dark:text-gray-400">No hay clases disponibles</p>}
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500 dark:text-gray-400">No tienes clases asignadas</p>
+        )}
       </nav>
     </div>
   );
