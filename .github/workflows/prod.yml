@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying MindCode on PRODUCTION ⭐
 on:
   push:
     branches:
-      - feaure-fix-prod-server
+      - feature-fix-prod-server
 
 jobs:
   STOP-DOCKER:
