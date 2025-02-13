@@ -656,13 +656,14 @@ function getClassInfo(class_id) {
 
 
 
-
+                console.log(language);
                 const language_info = JSON.parse(language);
+                console.log(language_info);
 
                 resolve({ class_id, name, language_info, teacher_info, classmate_info });
             }
         } catch (error) {
-            reject('Internal server error');
+            reject(error);
         }
     });
 }
