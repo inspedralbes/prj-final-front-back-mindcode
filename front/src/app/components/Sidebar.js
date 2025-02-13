@@ -5,12 +5,15 @@ const URL = process.env.NEXT_PUBLIC_URL;
 const Sidebar = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [languages, setLanguages] = useState([]);
-  const classInfo = useAuthStore((state) => state.class_info[0]);
+  const classInfo = useAuthStore((state) => state.class_info);
   const user_info = useAuthStore.getState().user_info
   
   useEffect(() => {
-    if (classInfo?.language_info && JSON.stringify(classInfo.language_info) !== JSON.stringify(languages)) {
-      setLanguages(classInfo.language_info); 
+    if (classInfo) {
+      if (classInfo[0]?.language_info && JSON.stringify(classInfo[0].language_info) !== JSON.stringify(languages)) {
+        setLanguages(classInfo[0].language_info); 
+      }
+      console.log(classInfo[0]);
     }
   }, [classInfo]);
 
@@ -21,7 +24,7 @@ const Sidebar = () => {
   
   const payload = {
     language_id: (index + 1),
-    class_id: (classDetails.class_id),
+    class_id: (classInfo[0].class_id),
     verified_user_id: user_info.userId,
     message: `${langObject.name}`
   };
