@@ -119,60 +119,62 @@ app.post('/api/class', async (req, res) => {
 
 
 
-const mongoose = require('mongoose');
-
-const mongoPath = 'mongodb+srv://<mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster>'; 
-
-const connectDB = async () => {
-    try {
-        console.log("Trying to connect to MongoDB...");
-        await mongoose.connect(mongoPath, {
-        
-        });
-        console.log('MongoDB successfully connected');
-    } catch (error) {
-        console.error('Error connecting to MongoDB:', error);
-        process.exit(1); 
-    }
-    connectDB();  
-};
-
 const fetch = require("node-fetch");
-const Mensaje = require("./models/Mensaje");
+const mongoose = require("mongoose");
 
-async function procesarMensaje(usuario, mensaje) {
-  try {
+mongoose.connect("mongodb://mongodb+srv://mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
-    const respuestaIA = await fetch("https://api.deepseek.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat", 
-        messages: [{ role: "user", content: mensaje }]
-      })
-    });
+const Conversaciones = mongoose.model("conversaciones", new mongoose.Schema({}, { strict: false }));
 
-    const data = await respuestaIA.json();
+async function procesarMensaje(req, res) {
+    try {
+        const { message, usuario } = req.body;
 
-    // Verificamos si hay respuesta
-    if (!data.choices || data.choices.length === 0) {
-      throw new Error("No se recibió respuesta de Deepseek");
+        if (!message || typeof message !== 'string' || message.trim() === '') {
+            return res.status(400).json({ error: 'El mensaje es obligatorio y no puede estar vacío.' });
+        }
+
+        // Enviar mensaje a la IA
+        const aiResponse = await sendToAI(message);
+        const returnMessage = aiResponse.content;
+
+        // Extraer contenido dentro de <think>...</think>
+        const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
+
+        let pensamientoIA = "No hay pensamiento";
+        let mensajeIA = returnMessage;
+
+        if (thinkTagContent && thinkTagContent[1]) {
+            pensamientoIA = thinkTagContent[1];
+            mensajeIA = returnMessage.replace(thinkTagContent[0], '').trim();
+        }
+
+        console.log("Pensamiento IA: ", pensamientoIA);
+        console.log("Mensaje IA sin <think>: ", mensajeIA);
+
+
+        const nuevoMensaje = new Conversaciones({
+            usuario,
+            mensaje: message,
+            mensajeIA,
+            pensamientoIA,
+            fecha: new Date()
+        });
+
+        await nuevoMensaje.save();
+        console.log("Mensaje guardado en la base de datos sin esquema.");
+
+        res.status(200).json({ mensajeIA, pensamientoIA });
+
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        res.status(500).json({ error: 'Error en el servidor. Inténtalo de nuevo.' });
     }
-
-    const respuestaTexto = data.choices[0].message.content;
-
-    const nuevoMensaje = new Mensaje({ usuario, mensaje, respuesta: respuestaTexto });
-    await nuevoMensaje.save();
-
-    return respuestaTexto;
-  } catch (err) {
-    console.error("Error al procesar el mensaje:", err);
-    return "Lo siento, ha ocurrido un error.";
-  }
 }
+module.exports = { procesarMensaje };
 
 
 app.post('/api/class/enroll', async (req, res) => {
@@ -249,6 +251,7 @@ app.post('/message/create', async (req, res) => {
 
         const returnMessage = aiResponse.content;
 
+        // Extract the content within <think> tags
         const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
         
         let restOfContent = "Sorry, something went wrong. Please try again.";
@@ -260,13 +263,14 @@ app.post('/message/create', async (req, res) => {
             restOfContent = returnMessage.replace(thinkTagContent[0], '').trim();
             console.log("Rest of Content: ", restOfContent);
         } else {
-           console.log ("No <think> tag content found in the response")
+            console.log("No <think> tag found in the response.");
         }
 
         res.status(200).json(restOfContent);
     } catch (error) {
         console.error('Error en el servidor:', error);
 
+        // Manejo de errores específicos
         // if (error.message.includes('La IA respondió con un error')) {
         //     res.status(502).json({ error: 'Error en la comunicación con la IA: ' + error.message });
         // } else if (error.message.includes('No se recibió respuesta de la IA')) {
