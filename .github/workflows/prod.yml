@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is deploying MindCode on PRODUCTION ⭐
 on:
   push:
     branches:
-      - main
+      - no-main
 
 jobs:
   STOP-DOCKER:
@@ -130,7 +130,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
           echo "DB_DATABASE=mindcode" >> .env
           echo "DB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env          
-          echo "AI_HOST=${{ secrets.AI_HOST }}" >> .env
+          echo "AIHOST=${{ secrets.AI_HOST }}" >> .env
           echo "SECRET_KEY=${{ secrets.JWT_KEY }}" >> .env
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "if [ -d ./mindcode/back ] 
