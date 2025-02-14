@@ -222,11 +222,17 @@ export async function sendMessage(body) {
 
 export async function getLanguages() {
   try {
+    const user_info = useAuthStore.getState().user_info;
+
+    if (!user_info || !user_info.token) {
+      throw new Error("No token available, user not authenticated.");
+    }
 
     const response = await fetch(`${URL}/api/language`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`, 
       },
     });
 
@@ -235,13 +241,13 @@ export async function getLanguages() {
       throw new Error(`Error getting data from language: ${errorText}`);
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error en Communication Manager:", error);
     throw error;
   }
 };
+
 
 export const deleteLanguage = async (idlanguage) => {
   const response = await fetch(`${URL}/api/language/${idlanguage}`, {
@@ -312,3 +318,40 @@ export async function updateLanguages(classId, languages) {
     throw error;
   }
 }
+
+export async function addLanguageToClass(classId, language) {
+  try {
+    const user_info = useAuthStore.getState().user_info;
+
+    if (!user_info || !user_info.token) {
+      throw new Error("No token provided");
+    }
+
+    if (!classId || !language || !language.idlanguage || !language.name || !language.restrictionId) {
+      throw new Error("Class ID and valid language details are required");
+    }
+
+    console.log(`🔵 Adding language to class: ${language.name} (ID: ${language.idlanguage}, Restriction: ${language.restrictionId})`);
+
+    const response = await fetch(`${URL}/api/language/class/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user_info.token}`,
+      },
+      body: JSON.stringify({ classId, language }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error adding language to class: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in Communication Manager:", error);
+    throw error;
+  }
+}
+
+
