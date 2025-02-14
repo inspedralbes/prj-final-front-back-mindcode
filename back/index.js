@@ -69,6 +69,44 @@ async function testConnection() {
 
 testConnection();
 
+app.get('/api/class', async (req, res) => {
+    const { class_id } = req.query;
+  
+    try {
+        const connection = await createConnection();
+        
+        let query = "SELECT idclass, name, teacher_id, language, code FROM CLASS";
+        let params = [];
+  
+        if (class_id) {
+            query += " WHERE idclass = ?";
+            params.push(class_id);
+        }
+  
+        const [rows] = await connection.execute(query, params);
+        await connection.end();
+  
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Class not found" });
+        }
+  
+        const classes = rows.map(classItem => ({
+            class_id: classItem.idclass,
+            name: classItem.name,
+            teacher_id: JSON.parse(classItem.teacher_id),
+            language: JSON.parse(classItem.language),
+            class_code: classItem.code
+        }));
+  
+        res.status(200).json(class_id ? classes[0] : classes);
+    } catch (error) {
+        console.error("Error fetching class information:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  
+
 // login/register with google
 app.post('/api/auth/google', async (req, res) => {
     const { uid, name, gmail } = req.body;
@@ -459,6 +497,53 @@ app.post('/api/language', async (req, res) => {
     }
 });
 
+app.post('/api/language/class/add', async (req, res) => {
+    const { classId, language } = req.body;
+    if (!classId || !language || !language.name || !language.idlanguage || !language.restrictionId) {
+        return res.status(400).json({ error: 'Invalid input. Class ID, language ID, name, and restrictionId are required.' });
+    }
+    try {
+        const connection = await createConnection();
+        const [classRows] = await connection.execute(
+            'SELECT idclass, language FROM CLASS WHERE idclass = ?',
+            [classId]
+        );
+        if (classRows.length === 0) {
+            await connection.end();
+            return res.status(404).json({ error: 'Class not found' });
+        }
+        const [languageRows] = await connection.execute(
+            'SELECT idlanguage, name FROM LANGUAGE WHERE idlanguage = ?',
+            [language.idlanguage]
+        );
+        if (languageRows.length === 0) {
+            await connection.end();
+            return res.status(404).json({ error: 'Language not found' });
+        }
+        if (![1, 2, 3].includes(language.restrictionId)) {
+            await connection.end();
+            return res.status(400).json({ error: 'Invalid restriction ID. Must be 1, 2, or 3.' });
+        }
+        let currentLanguages = JSON.parse(classRows[0].language || "[]");
+        if (currentLanguages.some(lang => lang.idlanguage === language.idlanguage)) {
+            await connection.end();
+            return res.status(409).json({ error: 'Language already exists in class' });
+        }
+        currentLanguages.push(language);
+        await connection.execute(
+            'UPDATE CLASS SET language = ? WHERE idclass = ?',
+            [JSON.stringify(currentLanguages), classId]
+        );
+        await connection.end();
+        res.status(200).json({ message: 'Language added successfully', classId, languages: currentLanguages });
+    } catch (error) {
+        console.error('Error adding language to class:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
 // modify a classes' languages
 app.put('/api/language/class', async (req, res) => {
     const { classId, languages } = req.body;
@@ -517,34 +602,40 @@ app.get("/api/language", verifyTokenMiddleware, async (req, res) => {
     }
 });
 
-// delete a language
 app.delete("/api/language", verifyTokenMiddleware, async (req, res) => {
-    const { idlanguage } = req.body;
-
-    if (!idlanguage) {
-        return res.status(400).json({ error: "Idlanguage is required" });
-    }
-
     try {
-        const connection = await createConnection();
+        console.log("🔹 Incoming DELETE request to /api/language");
+        console.log("Headers:", req.headers);
+        console.log("Body:", req.body);
 
+        const { idlanguage } = req.body;
+
+        if (!idlanguage) {
+            console.error("❌ No idlanguage provided in request.");
+            return res.status(400).json({ error: "Idlanguage is required" });
+        }
+
+        const connection = await createConnection();
         const [result] = await connection.execute(
             `DELETE FROM LANGUAGES WHERE idlanguage = ?`,
             [idlanguage]
         );
-
         await connection.end();
 
         if (result.affectedRows === 0) {
+            console.error(`❌ No language found with ID: ${idlanguage}`);
             return res.status(404).json({ error: "Language not found" });
         }
 
+        console.log(`✅ Language with ID ${idlanguage} deleted successfully`);
         res.status(200).json({ message: "Language deleted successfully" });
+
     } catch (error) {
-        console.error("Error in attempt to delete language", error);
+        console.error("❌ Error in attempt to delete language", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 // get all users from a class
 app.get("/api/class/user", verifyTokenMiddleware, async (req, res) => {
