@@ -294,12 +294,12 @@ app.post('/api/class/enroll', verifyTokenMiddleware, async (req, res) => {
 });
 
 // post a message
-app.post('/message/create', async (req, res) => {
+app.post('/message/create', verifyTokenMiddleware, async (req, res) => {
     const { message, language_id, class_id } = req.body;
     const verified_user_id = req.verified_user_id;
     let connection;
 
-    console.log(message);
+    console.log("message", message);
 
     // Validación del mensaje
     if (!message || typeof message !== "string" || message.trim() === "") {
@@ -308,15 +308,20 @@ app.post('/message/create', async (req, res) => {
             .json({ error: "El mensaje es obligatorio y no puede estar vacío." });
     }
 
+    console.log("type of language_id: ", typeof language_id);
     // Validación del ID de idioma
     if (!language_id || typeof language_id !== 'number') {
         return res.status(400).json({ error: 'El ID de idioma es obligatorio y debe ser un número.' });
     }
 
+
+    console.log("type of class_id: ", typeof class_id);
     // Validación del ID de clase
     if (!class_id || typeof class_id !== 'number') {
         return res.status(400).json({ error: 'El ID de clase es obligatorio y debe ser un número.' });
     }
+
+    console.log("Id del usuario: ", verified_user_id);
 
     // Validación del ID de usuario verificado
     if (!verified_user_id || typeof verified_user_id !== 'number') {
