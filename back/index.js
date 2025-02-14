@@ -52,7 +52,6 @@ async function createConnection() {
 }
 
 
-
 async function testConnection() {
     const connection = await createConnection();
     try {
@@ -68,6 +67,26 @@ async function testConnection() {
 
 testConnection();
 
+// const getLastMessages = async (userId) => {
+//     const client = new MongoClient(uri);
+
+//     try {
+//         await client.connect();
+//         console.log("Connected to MongoDB");
+
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         const messages = await collection.find({ userId }).sort({ fecha: -1 }).limit(3).toArray();
+
+//         return messages;
+//     } catch (error) {
+//         console.error("Error getting messages:", error);
+//         return [];
+//     } finally {
+//         await client.close();
+//     }
+// };
 
 app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
    const { name, teacher_id } = req.body;
@@ -77,7 +96,6 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
     if (!name || !teacher_id) {
         return res.status(400).json({ error: 'Class name and teacher ID are required' });
     }
-
 
     try {
         const connection = await createConnection();
@@ -96,12 +114,9 @@ app.post('/api/class', verifyTokenMiddleware, async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 
-
     const class_code = uid.rnd();
 
-
     console.log(class_code);
-
 
     try {
         const connection = await createConnection();
@@ -758,50 +773,66 @@ app.get("/api/user", verifyTokenMiddleware, async (req, res) => {
   }
 });
 
-app.get("/api/quiz",  async (req, res) => {
-    const { id } = req.query;
-  
-    if (!id) {
-      return res.status(400).json({ error: "Id is required" });
-    }
-  
-    try {
-      const connection = await createConnection();
-      const [rows] = await connection.execute(
-        "SELECT questions, results, language_id, sublanguage_id, data, answered FROM QUIZ WHERE id = ?",
-        [id]
-      );
-      await connection.end();
-  
-      res.status(200).json(rows);
-    } catch (error) {
-      console.error("Error fetching quiz:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
+app.post('/api/quiz', async (req, res) => {
+  try {
+      const  messages  = req.body.messages;
 
-  app.get("/api/quizToSolve",  async (req, res) => {
-    const { user_id,quiz_id } = req.query;
-  
-    if (!user_id | !quiz_id) {
-      return res.status(400).json({ error: "User_id and quiz_id are required" });
-    }
-  
-    try {
-      const connection = await createConnection();
-      const [rows] = await connection.execute(
-        "SELECT questions FROM QUIZ WHERE quiz_id = ?",
-        [quiz_id]
-      );
-      await connection.end();
-  
-      res.status(200).json(rows);
-    } catch (error) {
-      console.error("Error fetching quiz:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+          return res.status(400).json({ error: "Messages are required and must be a non-empty array." });
+      }
 
+      const formattedMessages = messages.join("\n");
+
+      console.log("Messages received from user:", formattedMessages);
+
+      const restriction = "The response must be in valid JSON format and include exactly four multiple-choice questions.";
+
+    
+      const aiResponse = await sendForQuiz(formattedMessages,restriction);
+
+      if (!aiResponse) {
+          return res.status(500).json({ error: "AI did not return a valid response." });
+      }
+
+      console.log("AI response:", aiResponse);
+
+      res.status(200).json({ quiz: aiResponse });
+
+  } catch (error) {
+      console.error("Error processing quiz:", error);
+      res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+const sendForQuiz = async (formattedMessages) => {
+  console.log("Sending message to AI:", formattedMessages);
+  console.log("AIHOST actual:", AIHOST);
+
+      const response = await fetch(`http://${AIHOST}:4567/generateQuiz`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({userPrompt: formattedMessages})
+    });
+
+  console.log("answer recieved");
+  if (!response.ok) {
+    throw new Error("La IA respondió con un error: " + response.statusText);
+  }
+
+  const aiResponse = await response.json();
+
+  if (!aiResponse) {
+    throw new Error("No se recibió respuesta de la IA");
+  }
+
+  console.log(aiResponse);
+
+  console.log("answer sent back");
+
+  return aiResponse;
+};
 
 app.get('/', (req, res) => {
     res.send('This is the back end!');
