@@ -121,7 +121,7 @@ app.post('/api/class', async (req, res) => {
 
 const mongoose = require('mongoose');
 
-const mongoPath = 'mongodb+srv://<dbConnection>'; 
+const mongoPath = 'mongodb+srv://<mongodb+srv://a24bermirpre:12345@cluster0.a4m9k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster>'; 
 
 const connectDB = async () => {
     try {
@@ -249,7 +249,6 @@ app.post('/message/create', async (req, res) => {
 
         const returnMessage = aiResponse.content;
 
-        // Extract the content within <think> tags
         const thinkTagContent = returnMessage.match(/<think>(.*?)<\/think>/s);
         
         let restOfContent = "Sorry, something went wrong. Please try again.";
@@ -261,14 +260,13 @@ app.post('/message/create', async (req, res) => {
             restOfContent = returnMessage.replace(thinkTagContent[0], '').trim();
             console.log("Rest of Content: ", restOfContent);
         } else {
-            console.log("No <think> tag found in the response.");
+           console.log ("No <think> tag content found in the response")
         }
 
         res.status(200).json(restOfContent);
     } catch (error) {
         console.error('Error en el servidor:', error);
 
-        // Manejo de errores específicos
         // if (error.message.includes('La IA respondió con un error')) {
         //     res.status(502).json({ error: 'Error en la comunicación con la IA: ' + error.message });
         // } else if (error.message.includes('No se recibió respuesta de la IA')) {
