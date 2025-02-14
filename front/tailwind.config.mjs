@@ -1,9 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  important: true,
+  purge: [
+    "./src/app/components/**/*.js",
+    "./src/app/**/*.js",
+    // "./src/app/Login/*.{js,ts,jsx,tsx,mdx}",
+    // "./src/app/JoinClass/*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: 'class', 
   theme: {
@@ -14,6 +16,7 @@ export default {
       },
     },
   },
-  darkMode: 'class',  
+  darkMode: 'class',
+  variants: {},  
   plugins: [],
 };
