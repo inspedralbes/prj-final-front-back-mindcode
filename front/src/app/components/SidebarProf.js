@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getLanguages, addLanguageToClass, createLanguage, updateLanguages } from "services/communicationManager.js";
+import { getLanguages, addLanguageToClass, createLanguage, deleteLanguage } from "services/communicationManager.js";
 import { useAuthStore } from "../../stores/authStore";
 
 const SidebarProf = () => {
@@ -9,37 +9,9 @@ const SidebarProf = () => {
   const [isLlenguatgesOpen, setIsLlenguatgesOpen] = useState(false);
   const [isAlumnesOpen, setIsAlumnesOpen] = useState(false);
   const [languagesByClass, setLanguagesByClass] = useState({});
-  const [editingLanguage, setEditingLanguage] = useState({ classId: null, index: null, name: '' });
 
   const user_info = useAuthStore((state) => state.user_info);
   const class_info = useAuthStore((state) => state.class_info);
-
-  const handleEditLanguage = (classId, index, name) => {
-    setEditingLanguage({ classId, index, name });
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingLanguage.classId || editingLanguage.index === null || !editingLanguage.name) {
-      console.error("Error: Invalid input for editing language.");
-      return;
-    }
-
-    try {
-      const updatedLanguages = [...languagesByClass[editingLanguage.classId]];
-      updatedLanguages[editingLanguage.index] = editingLanguage.name;
-
-      await updateLanguages(editingLanguage.classId, updatedLanguages);
-
-      setLanguagesByClass((prev) => ({
-        ...prev,
-        [editingLanguage.classId]: updatedLanguages,
-      }));
-
-      setEditingLanguage({ classId: null, index: null, name: '' });
-    } catch (error) {
-      console.error("Error updating language:", error);
-    }
-  };
 
   useEffect(() => {
     console.log("Clases en el store Zustand:", class_info);
@@ -59,44 +31,49 @@ const SidebarProf = () => {
 
   const handleAddLanguage = async () => {
     if (!newLanguage || !openClassId) {
-      console.error("Error: Class not selected or language name is empty.");
-      return;
+        console.error("Error: Class not selected or language name is empty.");
+        return;
     }
 
     try {
-      if (!user_info || !user_info.token) {
-        console.error("No token available, user not authenticated.");
-        return;
-      }
+        if (!user_info || !user_info.token) {
+            console.error("No token available, user not authenticated.");
+            return;
+        }
 
-      const allLanguages = await getLanguages();
+        const allLanguages = await getLanguages();
+        
+        let existingLanguage = allLanguages.find(lang => lang.name.toLowerCase() === newLanguage.toLowerCase());
 
-      let existingLanguage = allLanguages.find(lang => lang.name.toLowerCase() === newLanguage.toLowerCase());
+        if (!existingLanguage) {
+            console.log(`Language "${newLanguage}" not found in database, creating it...`);
 
-      if (!existingLanguage) {
-        console.log(`Language "${newLanguage}" not found in database, creating it...`);
+            const newLangResponse = await createLanguage(newLanguage);
+            existingLanguage = {
+                idlanguage: newLangResponse.idlanguage, 
+                name: newLangResponse.name,
+                restrictionId: Math.floor(Math.random() * 3) + 1, 
+            };
+        }
 
-        const newLangResponse = await createLanguage(newLanguage);
-        existingLanguage = {
-          idlanguage: newLangResponse.idlanguage,
-          name: newLangResponse.name,
-          restrictionId: Math.floor(Math.random() * 3) + 1,
-        };
-      }
+        if (!existingLanguage.restrictionId) {
+            console.error("No restrictionId found for language:", existingLanguage);
+            existingLanguage.restrictionId = 1;
+        }
 
-      console.log(`Adding language to class ${openClassId}:`, existingLanguage);
+        console.log(`Adding language to class ${openClassId}:`, existingLanguage);
 
-      await addLanguageToClass(openClassId, existingLanguage);
+        await addLanguageToClass(openClassId, existingLanguage);
 
-      setLanguagesByClass((prev) => ({
-        ...prev,
-        [openClassId]: [...(prev[openClassId] || []), existingLanguage.name],
-      }));
+        setLanguagesByClass((prev) => ({
+            ...prev,
+            [openClassId]: [...(prev[openClassId] || []), existingLanguage.name], 
+        }));
 
-      setNewLanguage("");
-      setShowInput(false);
+        setNewLanguage("");
+        setShowInput(false);
     } catch (error) {
-      console.error("Error adding new language:", error);
+        console.error("Error adding new language:", error);
     }
   };
 
@@ -133,34 +110,9 @@ const SidebarProf = () => {
                       {languagesByClass[class_id] && languagesByClass[class_id].length > 0 ? (
                         languagesByClass[class_id].map((lang, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            {editingLanguage.classId === class_id && editingLanguage.index === index ? (
-                              <div className="flex gap-2">
-                                <input
-                                  type="text"
-                                  value={editingLanguage.name}
-                                  onChange={(e) => setEditingLanguage({ ...editingLanguage, name: e.target.value })}
-                                  className="w-32 px-2 py-1 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white text-sm"
-                                />
-                                <button onClick={handleSaveEdit} className="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600">
-                                  ✅
-                                </button>
-                                <button onClick={() => setEditingLanguage({ classId: null, index: null, name: '' })} className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">
-                                  ✖
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <button className="w-3/4 px-3 py-2 bg-green-500 hover:bg-green-700 rounded-md text-white">
-                                  {lang}
-                                </button>
-                                <button
-                                  onClick={() => handleEditLanguage(class_id, index, lang)}
-                                  className="px-2 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                                >
-                                  ✏️
-                                </button>
-                              </>
-                            )}
+                            <button className="w-3/4 px-3 py-2 bg-green-500 hover:bg-green-700 rounded-md text-white">
+                              {lang} {/* Asegúrate de mostrar solo el nombre del idioma */}
+                            </button>
                           </div>
                         ))
                       ) : (
